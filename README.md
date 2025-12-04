@@ -1,73 +1,71 @@
-# React + TypeScript + Vite
+# 뭐입지 (ipzy-frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AI 기반 코디 추천 서비스 "뭐입지"의 프론트엔드 저장소입니다. 사용자가 4가지 간단한 질문에 답하면 AI가 무신사 상품을 기반으로 상의/하의/신발을 조합해 코디를 추천합니다.
 
-Currently, two official plugins are available:
+- **프로젝트 문서:** `docs/화면정의서.md` (화면 목록/플로우/컴포넌트)
+- **스크린샷:** `screenshots/` 폴더
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 기술 스택
 
-## React Compiler
+- **Language:** TypeScript 5.9.x
+- **Framework:** React 19
+- **스타일:** Tailwind CSS 4
+- **라우팅:** React Router DOM 7
+- **아이콘:** Lucide React
+- **번들러:** Vite 7
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 빠른 시작
 
-## Expanding the ESLint configuration
+사전 요구 사항:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js: 22.19.0 (`.nvmrc` 제공)
+- npm (또는 호환되는 패키지 매니저)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+```bash
+# 1) Node 버전 지정 (선택)
+nvm use
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# 2) 의존성 설치
+npm install
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 3) 개발 서버 실행
+npm run dev
+
+# 4) 프로덕션 빌드
+npm run build
+
+# 5) 빌드 미리보기
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+개발 서버 기본 주소: `http://localhost:5173`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 핵심 기능
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- 4가지 질문 기반 스타일 분석
+- AI 코디 추천 (상의/하의/신발) 및 총액 표시
+- 무신사 연동 구매 흐름
+- 코디 저장/관리, 구독 플랜(Basic/Pro)
+- 관리자 대시보드/회원/구독/결제/상품/퀴즈/설정
+
+## 로컬에서 스크린샷 캡처 자동화
+
+로컬 개발 서버가 실행 중일 때 아래 스크립트로 주요 화면 스크린샷을 생성할 수 있습니다.
+
+```bash
+# dev 서버 실행 중이어야 함 (기본: http://localhost:5173)
+npm run dev
+
+# 새 터미널에서 캡처 실행
+node scripts/capture-screens.cjs
 ```
+
+## 문서
+
+- 화면 정의서: `docs/화면정의서.md`
+- API 문서: `docs/api/` 폴더
+- ERD: `docs/ERD.md`
+
+## 라이선스
+
+내부 프로젝트용 문서/소스입니다. 별도 안내가 없으면 외부 배포를 지양해 주세요.
