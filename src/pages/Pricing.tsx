@@ -16,11 +16,7 @@ const plans = [
       "코디 저장 (최대 50개)",
       "이메일 지원",
     ],
-    notIncluded: [
-      "프리미엄 브랜드 추천",
-      "체형 맞춤 분석",
-      "1:1 스타일 상담",
-    ],
+    notIncluded: ["프리미엄 브랜드 추천", "체형 맞춤 분석", "1:1 스타일 상담"],
   },
   {
     id: "pro",
@@ -81,10 +77,10 @@ export default function Pricing() {
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-black mb-4">
+          <h1 className="text-3xl font-black mb-4">
             나에게 맞는 플랜 선택하기
           </h1>
-          <p className="text-gray-500 text-lg">
+          <p className="text-gray-500 text-base">
             언제든지 취소할 수 있어요. 부담 없이 시작하세요.
           </p>
         </div>
@@ -98,7 +94,7 @@ export default function Pricing() {
             return (
               <div
                 key={plan.id}
-                className={`relative bg-white rounded-2xl p-6 shadow-sm border-2 transition-all ${
+                className={`flex flex-col justify-between relative bg-white rounded-2xl p-6 shadow-sm border-2 transition-all ${
                   plan.popular
                     ? "border-[#FB5010] shadow-lg"
                     : "border-transparent hover:border-gray-200"

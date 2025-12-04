@@ -15,6 +15,7 @@ Base Path: `/users`
 **인증**: 필요
 
 **Headers**
+
 ```
 Authorization: Bearer <access_token>
 ```
@@ -22,6 +23,7 @@ Authorization: Bearer <access_token>
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -32,14 +34,14 @@ Authorization: Bearer <access_token>
     "role": "user",
     "profileImage": "https://cdn.mweoipji.com/profiles/user-123.jpg",
     "phoneNumber": "010-1234-5678",
-    "createdAt": "2024-01-15T09:30:00Z",
-    "updatedAt": "2024-01-15T09:30:00Z",
+    "createdAt": "2025-01-15T09:30:00Z",
+    "updatedAt": "2025-01-15T09:30:00Z",
     "subscription": {
       "id": "sub-123",
       "plan": "basic",
       "status": "active",
-      "startDate": "2024-01-01T00:00:00Z",
-      "endDate": "2024-02-01T00:00:00Z",
+      "startDate": "2025-01-01T00:00:00Z",
+      "endDate": "2025-02-01T00:00:00Z",
       "autoRenew": true,
       "features": {
         "dailyRecommendations": 10,
@@ -78,6 +80,7 @@ Authorization: Bearer <access_token>
 **인증**: 필요
 
 **Body** - 변경할 필드만 전송
+
 ```json
 {
   "name": "홍길동",
@@ -95,6 +98,7 @@ Authorization: Bearer <access_token>
 ```
 
 **필드 설명**
+
 - `name` (optional): 이름 (2-50자)
 - `phoneNumber` (optional): 휴대폰 번호
 - `profileImage` (optional): 프로필 이미지 URL
@@ -105,6 +109,7 @@ Authorization: Bearer <access_token>
 **성공 (200)** - 업데이트된 전체 프로필 반환 (GET /users/me와 동일)
 
 **에러 (400)**
+
 ```json
 {
   "success": false,
@@ -130,6 +135,7 @@ Authorization: Bearer <access_token>
 **인증**: 필요
 
 **Body**
+
 ```json
 {
   "currentPassword": "OldPass123!",
@@ -138,12 +144,14 @@ Authorization: Bearer <access_token>
 ```
 
 **필드 설명**
+
 - `currentPassword` (required): 현재 비밀번호
 - `newPassword` (required): 새 비밀번호 (8자 이상, 영문+숫자+특수문자)
 
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -154,6 +162,7 @@ Authorization: Bearer <access_token>
 ```
 
 **에러 (400) - 현재 비밀번호 불일치**
+
 ```json
 {
   "success": false,
@@ -165,6 +174,7 @@ Authorization: Bearer <access_token>
 ```
 
 **에러 (400) - 새 비밀번호 검증 실패**
+
 ```json
 {
   "success": false,
@@ -190,6 +200,7 @@ Authorization: Bearer <access_token>
 **인증**: 필요
 
 **Body**
+
 ```json
 {
   "password": "CurrentPass123!",
@@ -199,6 +210,7 @@ Authorization: Bearer <access_token>
 ```
 
 **필드 설명**
+
 - `password` (required): 현재 비밀번호 (본인 확인용)
 - `reason` (optional): 탈퇴 사유
 - `feedback` (optional): 서비스 개선을 위한 피드백
@@ -206,17 +218,19 @@ Authorization: Bearer <access_token>
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
   "data": {
     "message": "계정이 삭제되었습니다",
-    "deletedAt": "2024-01-15T09:30:00Z"
+    "deletedAt": "2025-01-15T09:30:00Z"
   }
 }
 ```
 
 **에러 (400) - 비밀번호 불일치**
+
 ```json
 {
   "success": false,
@@ -234,6 +248,7 @@ Authorization: Bearer <access_token>
 ### 소프트 삭제 (Soft Delete)
 
 회원 탈퇴 시 실제로 데이터를 삭제하지 않고 `deletedAt` 필드를 설정하여 소프트 삭제 처리합니다. 이는:
+
 - 데이터 복구 가능성 제공
 - 통계 및 분석 데이터 유지
 - 법적 요구사항 준수 (개인정보 보관 의무)
@@ -245,6 +260,7 @@ Authorization: Bearer <access_token>
 프로필 이미지는 별도의 파일 업로드 API를 통해 업로드 후, 반환된 URL을 `PATCH /users/me`의 `profileImage` 필드에 전달합니다.
 
 파일 업로드 API는 향후 추가될 예정입니다:
+
 ```
 POST /upload/profile-image
 Content-Type: multipart/form-data

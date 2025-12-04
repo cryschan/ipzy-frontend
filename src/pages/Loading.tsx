@@ -37,9 +37,7 @@ export default function Loading() {
 
       {/* Loading Text */}
       <div className="text-center">
-        <h1 className="text-2xl md:text-3xl font-bold mb-4">
-          코디 조합 중...
-        </h1>
+        <h1 className="text-2xl md:text-3xl font-bold mb-4">코디 조합 중...</h1>
         <p className="text-gray-400 text-sm md:text-base">
           AI가 당신에게 딱 맞는 스타일을 찾고 있어요
         </p>
@@ -47,9 +45,18 @@ export default function Loading() {
 
       {/* Loading Dots */}
       <div className="flex gap-2 mt-8">
-        <div className="w-2 h-2 bg-[#FB5010] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-        <div className="w-2 h-2 bg-[#FB5010] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-        <div className="w-2 h-2 bg-[#FB5010] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+        <div
+          className="w-2 h-2 bg-[#FB5010] rounded-full animate-big-bounce"
+          style={{ animationDelay: "0ms" }}
+        />
+        <div
+          className="w-2 h-2 bg-[#FB5010] rounded-full animate-big-bounce"
+          style={{ animationDelay: "150ms" }}
+        />
+        <div
+          className="w-2 h-2 bg-[#FB5010] rounded-full animate-big-bounce"
+          style={{ animationDelay: "300ms" }}
+        />
       </div>
 
       {/* Progress Steps */}
@@ -58,11 +65,17 @@ export default function Loading() {
           <div className="w-2 h-2 bg-[#FB5010] rounded-full" />
           <span>취향 분석 중...</span>
         </div>
-        <div className="flex items-center gap-3 animate-pulse" style={{ animationDelay: "500ms" }}>
+        <div
+          className="flex items-center gap-3 animate-pulse"
+          style={{ animationDelay: "500ms" }}
+        >
           <div className="w-2 h-2 bg-white/30 rounded-full" />
           <span>무신사 상품 검색 중...</span>
         </div>
-        <div className="flex items-center gap-3 animate-pulse" style={{ animationDelay: "1000ms" }}>
+        <div
+          className="flex items-center gap-3 animate-pulse"
+          style={{ animationDelay: "1000ms" }}
+        >
           <div className="w-2 h-2 bg-white/30 rounded-full" />
           <span>최적의 코디 조합 생성 중...</span>
         </div>

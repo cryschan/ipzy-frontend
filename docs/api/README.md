@@ -38,14 +38,18 @@ Authorization: Bearer <access_token>
 ### 공통 응답 형식
 
 **성공**
+
 ```json
 {
   "success": true,
-  "data": { /* 응답 데이터 */ }
+  "data": {
+    /* 응답 데이터 */
+  }
 }
 ```
 
 **에러**
+
 ```json
 {
   "success": false,
@@ -59,41 +63,47 @@ Authorization: Bearer <access_token>
 ## API 요약
 
 ### 인증
+
 - `POST /auth/register` - 회원가입
 - `POST /auth/login` - 로그인
 - `POST /auth/refresh` - 토큰 갱신
 - `POST /auth/logout` - 로그아웃
 
 ### 사용자
+
 - `GET /users/me` - 내 프로필 조회
 - `PATCH /users/me` - 프로필 수정
 - `PUT /users/me/password` - 비밀번호 변경
 
 ### 코디 추천
+
 - `POST /outfits/recommend` - 코디 추천 받기
 - `GET /outfits/saved` - 저장된 코디 목록
 - `POST /outfits/saved` - 코디 저장
 
 ### 구독
+
 - `GET /subscriptions/plans` - 구독 플랜 목록
 - `GET /subscriptions/me` - 내 구독 정보
 - `POST /subscriptions` - 구독 시작/변경
 
 ### 결제
+
 - `POST /payments` - 결제 처리
 - `GET /payments` - 결제 내역
 - `POST /payments/:id/refund` - 환불 요청
 
 ### 관리자
+
 - `GET /admin/dashboard` - 대시보드 통계
 - `GET /admin/users` - 회원 관리
 - `GET /admin/products` - 상품 관리
 
 ## 변경 이력
 
-| 버전 | 날짜 | 변경 내용 |
-|------|------|-----------|
-| 1.0.0 | 2024-01-15 | 초기 설계 |
+| 버전  | 날짜       | 변경 내용 |
+| ----- | ---------- | --------- |
+| 1.0.0 | 2025-01-15 | 초기 설계 |
 
 ## 기여
 

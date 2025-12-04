@@ -19,11 +19,15 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/5">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
-              <Logo size={32} color="#1a1a1a" bgColor="white" />
-              <span className="text-xl font-black tracking-tighter">뭐입지</span>
-            </div>
+            <Logo size={32} color="#1a1a1a" bgColor="white" />
+            <span className="text-xl font-black tracking-tighter">뭐입지</span>
+          </div>
           <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {menuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
           <div className="hidden md:flex items-center gap-4">
             {user ? (
@@ -67,18 +71,47 @@ export default function Home() {
         <div className="fixed inset-0 z-40 bg-white pt-20">
           <div className="flex flex-col items-center justify-center h-full gap-8">
             {user ? (
-              <button onClick={() => { navigate("/mypage"); setMenuOpen(false); }} className="text-2xl font-bold">
+              <button
+                onClick={() => {
+                  navigate("/mypage");
+                  setMenuOpen(false);
+                }}
+                className="text-2xl font-bold"
+              >
                 마이페이지
               </button>
             ) : (
-              <button onClick={() => { navigate("/login"); setMenuOpen(false); }} className="text-2xl font-bold">
+              <button
+                onClick={() => {
+                  navigate("/login");
+                  setMenuOpen(false);
+                }}
+                className="text-2xl font-bold"
+              >
                 로그인
               </button>
             )}
-            <button onClick={() => { handleStart(); setMenuOpen(false); }} className="text-2xl font-bold">Start</button>
-            <a href="#about" onClick={() => setMenuOpen(false)} className="text-2xl font-bold">About</a>
             <button
-              onClick={() => { handleStart(); setMenuOpen(false); }}
+              onClick={() => {
+                handleStart();
+                setMenuOpen(false);
+              }}
+              className="text-2xl font-bold"
+            >
+              Start
+            </button>
+            <a
+              href="#about"
+              onClick={() => setMenuOpen(false)}
+              className="text-2xl font-bold"
+            >
+              About
+            </a>
+            <button
+              onClick={() => {
+                handleStart();
+                setMenuOpen(false);
+              }}
               className="bg-[#FB5010] text-white px-8 py-3 text-lg font-medium rounded-full"
             >
               코디 추천 받기
@@ -92,16 +125,18 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
-            <div className="order-2 lg:order-1">
+            <div className="order-2 lg:order-1 mb-6">
               <p className="text-[#FB5010] text-sm font-bold tracking-widest uppercase mb-4">
                 AI Styling Service
               </p>
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] mb-6">
-                오늘<br />
+                오늘
+                <br />
                 <span className="text-[#FB5010]">뭐입지?</span>
               </h1>
               <p className="text-gray-600 text-lg md:text-xl max-w-md mb-8 leading-relaxed">
-                4가지 질문으로 찾는 나만의 스타일.<br />
+                4가지 질문으로 찾는 나만의 스타일.
+                <br />
                 AI가 추천하는 무신사 코디.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -125,13 +160,17 @@ export default function Home() {
                 <div className="absolute top-8 right-8 w-24 h-24 bg-[#FB5010] rounded-full opacity-80" />
                 <div className="absolute bottom-12 left-8 w-16 h-16 bg-[#1a1a1a] rounded-full" />
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <span className="text-[200px] font-black text-white/50">?</span>
+                  <span className="text-[200px] font-black text-white/50">
+                    ?
+                  </span>
                 </div>
                 {/* Magazine Style Label */}
                 <div className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] text-white p-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs tracking-widest uppercase">Issue 001</span>
-                    <span className="text-xs">2024</span>
+                    <span className="text-xs tracking-widest uppercase">
+                      Issue 001
+                    </span>
+                    <span className="text-xs">2025</span>
                   </div>
                 </div>
               </div>
@@ -147,19 +186,22 @@ export default function Home() {
 
       {/* Free Trial Banner */}
       <section className="py-16 bg-gradient-to-r from-[#FB5010] to-[#FF6B35] text-white">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-4xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
               <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
                 <Gift className="w-8 h-8" />
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="w-4 h-4" />
-                  <span className="text-sm font-bold uppercase tracking-wider">무료 체험</span>
+                  <span className="text-sm font-bold uppercase tracking-wider">
+                    무료 체험
+                  </span>
                 </div>
                 <h3 className="text-2xl md:text-3xl font-black">
-                  회원가입하면 <span className="underline decoration-4">5회 무료</span> 체험!
+                  회원가입하면{" "}
+                  <span className="underline decoration-4">5회 무료</span> 체험!
                 </h3>
                 <p className="text-white/80 mt-1">
                   카드 등록 없이 AI 코디 추천을 경험해보세요
@@ -167,7 +209,7 @@ export default function Home() {
               </div>
             </div>
             <button
-              onClick={() => navigate("/signup")}
+              onClick={() => navigate("/login")}
               className="bg-white text-[#FB5010] px-8 py-4 font-bold rounded-full hover:bg-gray-100 transition-colors whitespace-nowrap"
             >
               무료로 시작하기
@@ -181,7 +223,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
             <div>
-              <p className="text-[#FB5010] text-sm font-bold tracking-widest uppercase mb-4">How it works</p>
+              <p className="text-[#FB5010] text-sm font-bold tracking-widest uppercase mb-4">
+                How it works
+              </p>
               <h2 className="text-4xl md:text-6xl font-black">4 Questions</h2>
             </div>
             <p className="text-gray-400 max-w-sm mt-4 md:mt-0">
@@ -191,13 +235,26 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { num: "01", q: "어디 가요?", opts: "학교 · 회사 · 데이트 · 외출" },
-              { num: "02", q: "어떻게 보이고 싶어요?", opts: "깔끔 · 편하게 · 멋있게" },
+              {
+                num: "01",
+                q: "어디 가요?",
+                opts: "학교 · 회사 · 데이트 · 외출",
+              },
+              {
+                num: "02",
+                q: "어떻게 보이고 싶어요?",
+                opts: "깔끔 · 편하게 · 멋있게",
+              },
               { num: "03", q: "체형 고민?", opts: "없음 · 배 · 마른편 · 키" },
               { num: "04", q: "예산은?", opts: "10만 · 20만 · 30만 · 무관" },
             ].map((item, i) => (
-              <div key={i} className="group border border-white/10 p-6 hover:border-[#FB5010] transition-colors">
-                <span className="text-5xl font-black text-[#FB5010]">{item.num}</span>
+              <div
+                key={i}
+                className="group border border-white/10 p-6 hover:border-[#FB5010] transition-colors"
+              >
+                <span className="text-5xl font-black text-[#FB5010]">
+                  {item.num}
+                </span>
                 <h3 className="text-xl font-bold mt-6 mb-3">{item.q}</h3>
                 <p className="text-sm text-gray-500">{item.opts}</p>
               </div>
@@ -226,7 +283,9 @@ export default function Home() {
               <span className="text-gray-500">|</span>
               <span className="text-sm text-gray-500">AI Styling Service</span>
             </div>
-            <p className="text-sm text-gray-500">© 2024 뭐입지. All rights reserved.</p>
+            <p className="text-sm text-gray-500">
+              © 2025 뭐입지. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>

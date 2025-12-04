@@ -1,12 +1,16 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import { ProtectedRoute, GuestRoute, QuizRequiredRoute, AdminRoute } from "./components/RouteGuard";
+import {
+  ProtectedRoute,
+  GuestRoute,
+  QuizRequiredRoute,
+  AdminRoute,
+} from "./components/RouteGuard";
 import Home from "./pages/Home";
 import Quiz from "./pages/Quiz";
 import Loading from "./pages/Loading";
 import Result from "./pages/Result";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
 import MyPage from "./pages/MyPage";
 import Pricing from "./pages/Pricing";
 import Payment from "./pages/Payment";
@@ -64,14 +68,8 @@ function App() {
               </GuestRoute>
             }
           />
-          <Route
-            path="/signup"
-            element={
-              <GuestRoute>
-                <Signup />
-              </GuestRoute>
-            }
-          />
+          {/* 기존 /signup 접근 시 로그인으로 리다이렉트 */}
+          <Route path="/signup" element={<Navigate to="/login" replace />} />
 
           {/* 로그인 필요 */}
           <Route
@@ -90,10 +88,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* 에러 페이지 */}
-          <Route path="/error/500" element={<ServerError />} />
-          <Route path="/error/network" element={<NetworkError />} />
 
           {/* 개발/문서용 페이지 */}
           <Route path="/dev/validation" element={<ValidationExamples />} />
@@ -119,6 +113,9 @@ function App() {
             <Route path="settings" element={<Settings />} />
           </Route>
 
+          {/* 에러 페이지 */}
+          <Route path="/error/500" element={<ServerError />} />
+          <Route path="/error/network" element={<NetworkError />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

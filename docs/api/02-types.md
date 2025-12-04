@@ -6,8 +6,8 @@
 
 ```typescript
 type UUID = string;
-type ISODateString = string;  // "2024-01-15T09:30:00Z"
-type DateString = string;     // "2024-01-15"
+type ISODateString = string; // "2025-01-15T09:30:00Z"
+type DateString = string; // "2025-01-15"
 ```
 
 ## 사용자 관련
@@ -88,8 +88,8 @@ interface SubscriptionInfo {
 
 ```typescript
 interface SubscriptionFeatures {
-  dailyRecommendations: number;  // -1 = 무제한
-  savedOutfitsLimit: number;     // -1 = 무제한
+  dailyRecommendations: number; // -1 = 무제한
+  savedOutfitsLimit: number; // -1 = 무제한
   prioritySupport: boolean;
   exclusiveStyles: boolean;
   adFree: boolean;
@@ -204,7 +204,7 @@ interface QuizOption {
 ```typescript
 interface QuizResponse {
   questionId: UUID;
-  selectedOptions: string[];  // option values
+  selectedOptions: string[]; // option values
 }
 ```
 
@@ -213,13 +213,22 @@ interface QuizResponse {
 ### PaymentMethod
 
 ```typescript
-type PaymentMethod = "credit_card" | "kakao_pay" | "naver_pay" | "bank_transfer";
+type PaymentMethod =
+  | "credit_card"
+  | "kakao_pay"
+  | "naver_pay"
+  | "bank_transfer";
 ```
 
 ### PaymentStatus
 
 ```typescript
-type PaymentStatus = "pending" | "completed" | "failed" | "refunded" | "cancelled";
+type PaymentStatus =
+  | "pending"
+  | "completed"
+  | "failed"
+  | "refunded"
+  | "cancelled";
 ```
 
 ### Payment
@@ -248,8 +257,8 @@ interface Payment {
 interface PaymentCard {
   id: UUID;
   userId: UUID;
-  cardNumber: string;      // 마스킹: "****-****-****-1234"
-  cardBrand: string;       // "visa", "mastercard", "hyundai" 등
+  cardNumber: string; // 마스킹: "****-****-****-1234"
+  cardBrand: string; // "visa", "mastercard", "hyundai" 등
   expiryMonth: string;
   expiryYear: string;
   isDefault: boolean;
@@ -324,7 +333,7 @@ interface DashboardStats {
 interface AuthTokens {
   accessToken: string;
   refreshToken: string;
-  expiresIn: number;  // 초 단위
+  expiresIn: number; // 초 단위
 }
 ```
 

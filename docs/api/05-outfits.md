@@ -14,6 +14,7 @@ Base Path: `/outfits`
 **Rate Limit**: 플랜별 일일 한도
 
 **Body**
+
 ```json
 {
   "quizResponses": [
@@ -42,12 +43,14 @@ Base Path: `/outfits`
 ```
 
 **필드 설명**
+
 - `quizResponses` (required): 퀴즈 응답 배열
 - `additionalContext` (optional): 날씨, 상황 등 추가 정보
 
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -88,7 +91,7 @@ Base Path: `/outfits`
         "occasion": "daily",
         "season": "spring",
         "style": "casual",
-        "createdAt": "2024-01-15T09:30:00Z"
+        "createdAt": "2025-01-15T09:30:00Z"
       }
     ],
     "usageInfo": {
@@ -101,6 +104,7 @@ Base Path: `/outfits`
 ```
 
 **에러 (422) - 일일 한도 초과**
+
 ```json
 {
   "success": false,
@@ -110,7 +114,7 @@ Base Path: `/outfits`
     "details": {
       "dailyLimit": 3,
       "usedToday": 3,
-      "resetAt": "2024-01-16T00:00:00Z"
+      "resetAt": "2025-01-16T00:00:00Z"
     }
   }
 }
@@ -127,6 +131,7 @@ Base Path: `/outfits`
 **인증**: 필요
 
 **쿼리 파라미터**
+
 ```
 page: 페이지 번호 (기본값: 1)
 limit: 페이지당 항목 수 (기본값: 10, 최대: 50)
@@ -137,6 +142,7 @@ isFavorite: true | false
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -161,7 +167,7 @@ isFavorite: true | false
         "price": 139000
       },
       "totalPrice": 217000,
-      "savedAt": "2024-01-15T09:30:00Z",
+      "savedAt": "2025-01-15T09:30:00Z",
       "note": "출근용으로 좋을 듯",
       "isFavorite": true
     }
@@ -190,6 +196,7 @@ isFavorite: true | false
 **인증**: 필요
 
 **Body**
+
 ```json
 {
   "outfitId": "outfit-001",
@@ -201,13 +208,14 @@ isFavorite: true | false
 ### 응답
 
 **성공 (201)**
+
 ```json
 {
   "success": true,
   "data": {
     "id": "saved-002",
     "outfitId": "outfit-001",
-    "savedAt": "2024-01-15T09:30:00Z",
+    "savedAt": "2025-01-15T09:30:00Z",
     "note": "주말 데이트용",
     "isFavorite": false
   }
@@ -215,6 +223,7 @@ isFavorite: true | false
 ```
 
 **에러 (422) - 저장 한도 초과**
+
 ```json
 {
   "success": false,
@@ -241,6 +250,7 @@ isFavorite: true | false
 **인증**: 필요
 
 **경로 파라미터**
+
 - `id`: 저장된 코디 ID
 
 ### 응답
@@ -251,8 +261,8 @@ isFavorite: true | false
 
 ## 플랜별 제한사항
 
-| 플랜 | 일일 추천 | 저장 코디 | 독점 스타일 |
-|------|-----------|-----------|-------------|
-| Free | 3회 | 10개 | ✗ |
-| Basic | 10회 | 50개 | ✗ |
-| Pro | 무제한 | 무제한 | ✓ |
+| 플랜  | 일일 추천 | 저장 코디 | 독점 스타일 |
+| ----- | --------- | --------- | ----------- |
+| Free  | 3회       | 10개      | ✗           |
+| Basic | 10회      | 50개      | ✗           |
+| Pro   | 무제한    | 무제한    | ✓           |

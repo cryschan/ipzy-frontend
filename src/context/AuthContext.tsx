@@ -35,6 +35,7 @@ interface AuthContextType {
   savedOutfits: SavedOutfit[];
   login: (email: string, password: string) => Promise<boolean>;
   adminLogin: (email: string, password: string) => Promise<boolean>;
+  socialLogin: (provider: "google" | "kakao") => Promise<boolean>;
   signup: (email: string, password: string, name: string) => Promise<boolean>;
   checkEmailDuplicate: (email: string) => Promise<boolean>;
   logout: () => void;
@@ -51,8 +52,12 @@ const AuthContext = createContext<AuthContextType | null>(null);
 const mockSavedOutfits: SavedOutfit[] = [
   {
     id: "1",
-    date: "2024-01-15",
-    top: { name: "오버핏 옥스포드 셔츠", brand: "무신사 스탠다드", price: 59000 },
+    date: "2025-01-15",
+    top: {
+      name: "오버핏 옥스포드 셔츠",
+      brand: "무신사 스탠다드",
+      price: 59000,
+    },
     bottom: { name: "와이드 슬랙스 팬츠", brand: "커버낫", price: 79000 },
     shoes: { name: "레더 코트 스니커즈", brand: "컨버스", price: 51000 },
     total: 189000,
@@ -60,7 +65,7 @@ const mockSavedOutfits: SavedOutfit[] = [
   },
   {
     id: "2",
-    date: "2024-01-10",
+    date: "2025-01-10",
     top: { name: "베이직 크루넥 니트", brand: "유니클로", price: 39000 },
     bottom: { name: "스트레이트 데님 팬츠", brand: "리바이스", price: 89000 },
     shoes: { name: "클래식 레더 로퍼", brand: "닥터마틴", price: 159000 },
@@ -71,7 +76,8 @@ const mockSavedOutfits: SavedOutfit[] = [
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [savedOutfits, setSavedOutfits] = useState<SavedOutfit[]>(mockSavedOutfits);
+  const [savedOutfits, setSavedOutfits] =
+    useState<SavedOutfit[]>(mockSavedOutfits);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     // 모의 로그인 (실제로는 API 호출)
@@ -94,7 +100,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false;
   };
 
-  const adminLogin = async (email: string, password: string): Promise<boolean> => {
+  const adminLogin = async (
+    email: string,
+    password: string
+  ): Promise<boolean> => {
     // 모의 관리자 로그인 (실제로는 API 호출)
     // 테스트용: admin@admin.com / admin123
     if (email === "admin@admin.com" && password === "admin123") {
@@ -109,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           endDate: null,
           isActive: true,
         },
-        createdAt: "2024-01-01",
+        createdAt: "2025-01-01",
       });
       return true;
     }
@@ -120,7 +129,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return user?.role === "admin" || user?.role === "super_admin";
   };
 
-  const signup = async (email: string, password: string, name: string): Promise<boolean> => {
+  const socialLogin = async (
+    provider: "google" | "kakao"
+  ): Promise<boolean> => {
+    // 모의 소셜 로그인
+    const email =
+      provider === "google"
+        ? "google_user@example.com"
+        : "kakao_user@example.com";
+    const name = provider === "google" ? "Google 사용자" : "Kakao 사용자";
+    setUser({
+      id: provider + "-1",
+      email,
+      name,
+      role: "user",
+      subscription: {
+        plan: "free",
+        startDate: null,
+        endDate: null,
+        isActive: false,
+      },
+      createdAt: new Date().toISOString().split("T")[0],
+    });
+    return true;
+  };
+
+  const signup = async (
+    email: string,
+    password: string,
+    name: string
+  ): Promise<boolean> => {
     // 모의 회원가입 (실제로는 API 호출)
     if (email && password && name) {
       setUser({
@@ -147,7 +185,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // 테스트용: test@test.com은 이미 사용 중인 것으로 처리
-    const existingEmails = ["test@test.com", "admin@admin.com", "user@example.com"];
+    const existingEmails = [
+      "test@test.com",
+      "admin@admin.com",
+      "user@example.com",
+    ];
     return !existingEmails.includes(email.toLowerCase());
   };
 
@@ -205,7 +247,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, savedOutfits, login, adminLogin, signup, checkEmailDuplicate, logout, saveOutfit, removeOutfit, subscribe, cancelSubscription, isAdmin }}
+      value={{
+        user,
+        savedOutfits,
+        login,
+        adminLogin,
+        socialLogin,
+        signup,
+        checkEmailDuplicate,
+        logout,
+        saveOutfit,
+        removeOutfit,
+        subscribe,
+        cancelSubscription,
+        isAdmin,
+      }}
     >
       {children}
     </AuthContext.Provider>

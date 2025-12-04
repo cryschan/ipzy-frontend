@@ -13,6 +13,7 @@ Base Path: `/payments`
 **인증**: 필요
 
 **쿼리 파라미터**
+
 ```
 page, limit
 status: pending | completed | failed | refunded | cancelled
@@ -22,6 +23,7 @@ startDate, endDate
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -37,8 +39,8 @@ startDate, endDate
       "description": "베이직 플랜 월간 구독",
       "transactionId": "txn_abc123",
       "receiptUrl": "https://receipt.mweoipji.com/pay-001",
-      "createdAt": "2024-01-01T09:00:00Z",
-      "completedAt": "2024-01-01T09:00:05Z"
+      "createdAt": "2025-01-01T09:00:00Z",
+      "completedAt": "2025-01-01T09:00:05Z"
     }
   ],
   "meta": {
@@ -69,6 +71,7 @@ startDate, endDate
 **인증**: 필요
 
 **Body - 신규 카드로 결제**
+
 ```json
 {
   "amount": 9900,
@@ -85,6 +88,7 @@ startDate, endDate
 ```
 
 **필드 설명**
+
 - `amount` (required): 결제 금액
 - `subscriptionPlanId` (optional): 구독 결제 시 플랜 ID
 - `card` (optional): 신규 카드 정보
@@ -93,6 +97,7 @@ startDate, endDate
 ### 응답
 
 **성공 (201)**
+
 ```json
 {
   "success": true,
@@ -108,6 +113,7 @@ startDate, endDate
 ```
 
 **에러 (422) - 카드 정보 오류**
+
 ```json
 {
   "success": false,
@@ -133,6 +139,7 @@ startDate, endDate
 **인증**: 필요
 
 **Body**
+
 ```json
 {
   "reason": "서비스 불만족",
@@ -143,6 +150,7 @@ startDate, endDate
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -151,7 +159,7 @@ startDate, endDate
     "paymentId": "pay-001",
     "amount": 9900,
     "status": "pending",
-    "estimatedDate": "2024-01-18T00:00:00Z",
+    "estimatedDate": "2025-01-18T00:00:00Z",
     "message": "환불 요청이 접수되었습니다. 영업일 기준 3-5일 내 처리됩니다."
   }
 }
@@ -170,6 +178,7 @@ startDate, endDate
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -182,7 +191,7 @@ startDate, endDate
       "expiryMonth": "12",
       "expiryYear": "25",
       "isDefault": true,
-      "createdAt": "2024-01-01T09:00:00Z"
+      "createdAt": "2025-01-01T09:00:00Z"
     }
   ]
 }
@@ -210,13 +219,13 @@ startDate, endDate
 
 ## 결제 상태
 
-| 상태 | 설명 |
-|------|------|
-| pending | 결제 대기 중 |
-| completed | 결제 완료 |
-| failed | 결제 실패 |
-| refunded | 환불 완료 |
-| cancelled | 결제 취소 |
+| 상태      | 설명         |
+| --------- | ------------ |
+| pending   | 결제 대기 중 |
+| completed | 결제 완료    |
+| failed    | 결제 실패    |
+| refunded  | 환불 완료    |
+| cancelled | 결제 취소    |
 
 ---
 

@@ -57,12 +57,31 @@ export default function Settings() {
 
           <div className="space-y-4">
             {[
-              { key: "newUser", label: "새 회원 가입", description: "새로운 회원이 가입하면 알림을 받습니다" },
-              { key: "newSubscription", label: "새 구독", description: "새로운 구독이 시작되면 알림을 받습니다" },
-              { key: "payment", label: "결제 알림", description: "결제/환불 발생 시 알림을 받습니다" },
-              { key: "system", label: "시스템 알림", description: "시스템 관련 중요 알림을 받습니다" },
+              {
+                key: "newUser",
+                label: "새 회원 가입",
+                description: "새로운 회원이 가입하면 알림을 받습니다",
+              },
+              {
+                key: "newSubscription",
+                label: "새 구독",
+                description: "새로운 구독이 시작되면 알림을 받습니다",
+              },
+              {
+                key: "payment",
+                label: "결제 알림",
+                description: "결제/환불 발생 시 알림을 받습니다",
+              },
+              {
+                key: "system",
+                label: "시스템 알림",
+                description: "시스템 관련 중요 알림을 받습니다",
+              },
             ].map((item) => (
-              <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+              <div
+                key={item.key}
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
+              >
                 <div>
                   <p className="font-medium text-gray-800">{item.label}</p>
                   <p className="text-sm text-gray-500">{item.description}</p>
@@ -107,7 +126,9 @@ export default function Settings() {
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
               <div>
                 <p className="font-medium text-gray-800">2단계 인증</p>
-                <p className="text-sm text-gray-500">추가 보안을 위해 2단계 인증을 사용합니다</p>
+                <p className="text-sm text-gray-500">
+                  추가 보안을 위해 2단계 인증을 사용합니다
+                </p>
               </div>
               <span className="px-3 py-1 bg-gray-200 text-gray-600 text-xs font-medium rounded-full">
                 비활성
@@ -116,7 +137,9 @@ export default function Settings() {
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
               <div>
                 <p className="font-medium text-gray-800">세션 타임아웃</p>
-                <p className="text-sm text-gray-500">30분 동안 활동이 없으면 자동 로그아웃</p>
+                <p className="text-sm text-gray-500">
+                  30분 동안 활동이 없으면 자동 로그아웃
+                </p>
               </div>
               <span className="px-3 py-1 bg-green-100 text-green-600 text-xs font-medium rounded-full">
                 활성
@@ -143,7 +166,7 @@ export default function Settings() {
             </div>
             <div className="flex justify-between py-2 border-b border-gray-100">
               <span className="text-gray-500">마지막 배포</span>
-              <span className="font-medium">2024-01-15 14:30</span>
+              <span className="font-medium">2025-01-15 14:30</span>
             </div>
             <div className="flex justify-between py-2">
               <span className="text-gray-500">데이터베이스</span>

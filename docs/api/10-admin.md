@@ -15,6 +15,7 @@ Base Path: `/admin`
 **인증**: 필요 (관리자)
 
 **쿼리 파라미터**
+
 ```
 period: today | week | month | year (기본값: today)
 ```
@@ -22,6 +23,7 @@ period: today | week | month | year (기본값: today)
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -84,6 +86,7 @@ period: today | week | month | year (기본값: today)
 ```
 
 **에러 (403)**
+
 ```json
 {
   "success": false,
@@ -105,6 +108,7 @@ period: today | week | month | year (기본값: today)
 **인증**: 필요 (관리자)
 
 **쿼리 파라미터**
+
 ```
 page: 페이지 번호 (기본값: 1)
 limit: 페이지당 항목 수 (기본값: 20, 최대: 100)
@@ -121,6 +125,7 @@ endDate: 가입일 종료 (YYYY-MM-DD)
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -136,17 +141,17 @@ endDate: 가입일 종료 (YYYY-MM-DD)
       "subscription": {
         "plan": "basic",
         "status": "active",
-        "startDate": "2024-01-01T00:00:00Z",
-        "endDate": "2024-02-01T00:00:00Z"
+        "startDate": "2025-01-01T00:00:00Z",
+        "endDate": "2025-02-01T00:00:00Z"
       },
       "stats": {
         "totalRecommendations": 156,
         "savedOutfits": 23,
         "totalPayments": 99000,
-        "lastActiveAt": "2024-01-15T08:30:00Z"
+        "lastActiveAt": "2025-01-15T08:30:00Z"
       },
       "createdAt": "2023-06-15T00:00:00Z",
-      "updatedAt": "2024-01-15T08:30:00Z"
+      "updatedAt": "2025-01-15T08:30:00Z"
     }
   ],
   "meta": {
@@ -178,11 +183,13 @@ endDate: 가입일 종료 (YYYY-MM-DD)
 **인증**: 필요 (관리자)
 
 **경로 파라미터**
+
 - `id`: 사용자 ID
 
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -198,8 +205,8 @@ endDate: 가입일 종료 (YYYY-MM-DD)
       "id": "sub-123",
       "plan": "basic",
       "status": "active",
-      "startDate": "2024-01-01T00:00:00Z",
-      "endDate": "2024-02-01T00:00:00Z",
+      "startDate": "2025-01-01T00:00:00Z",
+      "endDate": "2025-02-01T00:00:00Z",
       "autoRenew": true
     },
     "preferences": {
@@ -211,7 +218,7 @@ endDate: 가입일 종료 (YYYY-MM-DD)
       "totalRecommendations": 156,
       "savedOutfits": 23,
       "totalPayments": 99000,
-      "lastActiveAt": "2024-01-15T08:30:00Z",
+      "lastActiveAt": "2025-01-15T08:30:00Z",
       "loginCount": 89
     },
     "recentActivity": [
@@ -225,7 +232,7 @@ endDate: 가입일 종료 (YYYY-MM-DD)
       }
     ],
     "createdAt": "2023-06-15T00:00:00Z",
-    "updatedAt": "2024-01-15T08:30:00Z"
+    "updatedAt": "2025-01-15T08:30:00Z"
   }
 }
 ```
@@ -241,9 +248,11 @@ endDate: 가입일 종료 (YYYY-MM-DD)
 **인증**: 필요 (관리자)
 
 **경로 파라미터**
+
 - `id`: 사용자 ID
 
 **Body**
+
 ```json
 {
   "status": "suspended",
@@ -253,6 +262,7 @@ endDate: 가입일 종료 (YYYY-MM-DD)
 ```
 
 **필드 설명**
+
 - `status` (optional): active | inactive | suspended
 - `role` (optional): user | admin
 - `note` (optional): 변경 사유 (로그용)
@@ -272,9 +282,11 @@ endDate: 가입일 종료 (YYYY-MM-DD)
 **인증**: 필요 (관리자)
 
 **경로 파라미터**
+
 - `id`: 사용자 ID
 
 **Body**
+
 ```json
 {
   "reason": "이용약관 위반",
@@ -285,12 +297,13 @@ endDate: 가입일 종료 (YYYY-MM-DD)
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
   "data": {
     "message": "회원이 삭제되었습니다",
-    "deletedAt": "2024-01-15T09:30:00Z"
+    "deletedAt": "2025-01-15T09:30:00Z"
   }
 }
 ```
@@ -306,6 +319,7 @@ endDate: 가입일 종료 (YYYY-MM-DD)
 **인증**: 필요 (관리자)
 
 **쿼리 파라미터**
+
 ```
 page, limit
 plan: free | basic | pro
@@ -316,6 +330,7 @@ search: 사용자 이름 또는 이메일
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -327,11 +342,11 @@ search: 사용자 이름 또는 이메일
       "userEmail": "user@example.com",
       "plan": "basic",
       "status": "active",
-      "startDate": "2024-01-01T00:00:00Z",
-      "endDate": "2024-02-01T00:00:00Z",
+      "startDate": "2025-01-01T00:00:00Z",
+      "endDate": "2025-02-01T00:00:00Z",
       "autoRenew": true,
       "amount": 9900,
-      "createdAt": "2024-01-01T00:00:00Z"
+      "createdAt": "2025-01-01T00:00:00Z"
     }
   ],
   "meta": {
@@ -356,13 +371,15 @@ search: 사용자 이름 또는 이메일
 **인증**: 필요 (관리자)
 
 **경로 파라미터**
+
 - `id`: 구독 ID
 
 **Body**
+
 ```json
 {
   "plan": "pro",
-  "endDate": "2024-06-01T00:00:00Z",
+  "endDate": "2025-06-01T00:00:00Z",
   "reason": "프로모션 당첨"
 }
 ```
@@ -382,6 +399,7 @@ search: 사용자 이름 또는 이메일
 **인증**: 필요 (관리자)
 
 **쿼리 파라미터**
+
 ```
 page, limit
 status: pending | completed | failed | refunded | cancelled
@@ -395,6 +413,7 @@ search: 사용자 이름 또는 이메일
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -409,8 +428,8 @@ search: 사용자 이름 또는 이메일
       "status": "completed",
       "subscriptionPlan": "basic",
       "transactionId": "txn_abc123",
-      "createdAt": "2024-01-01T09:00:00Z",
-      "completedAt": "2024-01-01T09:00:05Z"
+      "createdAt": "2025-01-01T09:00:00Z",
+      "completedAt": "2025-01-01T09:00:05Z"
     }
   ],
   "meta": {
@@ -438,9 +457,11 @@ search: 사용자 이름 또는 이메일
 **인증**: 필요 (관리자)
 
 **경로 파라미터**
+
 - `id`: 결제 ID
 
 **Body**
+
 ```json
 {
   "amount": 9900,
@@ -452,6 +473,7 @@ search: 사용자 이름 또는 이메일
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
@@ -460,7 +482,7 @@ search: 사용자 이름 또는 이메일
     "paymentId": "pay-001",
     "amount": 9900,
     "status": "completed",
-    "processedAt": "2024-01-15T09:30:00Z"
+    "processedAt": "2025-01-15T09:30:00Z"
   }
 }
 ```
@@ -476,6 +498,7 @@ search: 사용자 이름 또는 이메일
 **인증**: 필요 (관리자)
 
 **쿼리 파라미터**
+
 ```
 page, limit
 category, brand, search
@@ -498,6 +521,7 @@ sort: name | price | createdAt | stock
 **인증**: 필요 (관리자)
 
 **Body**
+
 ```json
 {
   "name": "슬림핏 데님 팬츠",
@@ -524,6 +548,7 @@ sort: name | price | createdAt | stock
 ### 응답
 
 **성공 (201)**
+
 ```json
 {
   "success": true,
@@ -533,7 +558,7 @@ sort: name | price | createdAt | stock
     "brand": "무신사 스탠다드",
     "category": "bottom",
     "price": 59000,
-    "createdAt": "2024-01-15T09:30:00Z"
+    "createdAt": "2025-01-15T09:30:00Z"
   }
 }
 ```
@@ -549,6 +574,7 @@ sort: name | price | createdAt | stock
 **인증**: 필요 (관리자)
 
 **경로 파라미터**
+
 - `id`: 상품 ID
 
 **Body**: POST와 동일 (전체 필드 필요)
@@ -568,9 +594,11 @@ sort: name | price | createdAt | stock
 **인증**: 필요 (관리자)
 
 **경로 파라미터**
+
 - `id`: 상품 ID
 
 **Body** - 변경할 필드만
+
 ```json
 {
   "price": 49000,
@@ -594,6 +622,7 @@ sort: name | price | createdAt | stock
 **인증**: 필요 (관리자)
 
 **경로 파라미터**
+
 - `id`: 상품 ID
 
 ### 응답
@@ -611,6 +640,7 @@ sort: name | price | createdAt | stock
 **인증**: 필요 (관리자)
 
 **쿼리 파라미터**
+
 ```
 page, limit
 isActive: true | false
@@ -631,6 +661,7 @@ isActive: true | false
 **인증**: 필요 (관리자)
 
 **Body**
+
 ```json
 {
   "title": "여름 스타일 퀴즈",
@@ -668,6 +699,7 @@ isActive: true | false
 **인증**: 필요 (관리자)
 
 **경로 파라미터**
+
 - `id`: 퀴즈 ID
 
 **Body**: POST와 동일
@@ -687,6 +719,7 @@ isActive: true | false
 **인증**: 필요 (관리자)
 
 **경로 파라미터**
+
 - `id`: 퀴즈 ID
 
 ### 응답
@@ -704,6 +737,7 @@ isActive: true | false
 **인증**: 필요 (관리자)
 
 **쿼리 파라미터**
+
 ```
 period: day | week | month | year
 startDate, endDate
@@ -712,13 +746,14 @@ startDate, endDate
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
   "data": {
     "userGrowth": [
-      { "date": "2024-01-01", "count": 120 },
-      { "date": "2024-01-02", "count": 135 }
+      { "date": "2025-01-01", "count": 120 },
+      { "date": "2025-01-02", "count": 135 }
     ],
     "subscriptionDistribution": {
       "free": 12170,
@@ -745,6 +780,7 @@ startDate, endDate
 **인증**: 필요 (관리자)
 
 **쿼리 파라미터**
+
 ```
 period: day | week | month | year
 startDate, endDate
@@ -753,13 +789,14 @@ startDate, endDate
 ### 응답
 
 **성공 (200)**
+
 ```json
 {
   "success": true,
   "data": {
     "revenueByDate": [
-      { "date": "2024-01-01", "amount": 1250000 },
-      { "date": "2024-01-02", "amount": 1380000 }
+      { "date": "2025-01-01", "amount": 1250000 },
+      { "date": "2025-01-02", "amount": 1380000 }
     ],
     "revenueByPlan": {
       "basic": 24255000,
@@ -775,6 +812,7 @@ startDate, endDate
 ## 관리자 권한 레벨
 
 향후 구현 예정:
+
 - `super_admin`: 모든 권한
 - `admin`: 일반 관리 권한
 - `support`: 고객 지원 (읽기 전용)

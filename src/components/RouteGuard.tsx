@@ -9,13 +9,18 @@ interface RouteGuardProps {
 }
 
 // 인증이 필요한 페이지 보호
-export function ProtectedRoute({ children, redirectTo = "/login" }: RouteGuardProps) {
+export function ProtectedRoute({
+  children,
+  redirectTo = "/login",
+}: RouteGuardProps) {
   const { user } = useAuth();
   const location = useLocation();
 
   if (!user) {
     // 로그인 후 원래 페이지로 돌아갈 수 있도록 현재 위치 저장
-    return <Navigate to={redirectTo} state={{ from: location.pathname }} replace />;
+    return (
+      <Navigate to={redirectTo} state={{ from: location.pathname }} replace />
+    );
   }
 
   return <>{children}</>;

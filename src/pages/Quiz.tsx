@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 const STORAGE_KEY = "quiz_progress";
 
@@ -57,6 +57,14 @@ export default function Quiz() {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isRestored, setIsRestored] = useState(false);
+  const [isAdvancing, setIsAdvancing] = useState(false);
+  const advancingRef = useRef(false);
+  const advanceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentStepRef = useRef(0);
+
+  useEffect(() => {
+    currentStepRef.current = currentStep;
+  }, [currentStep]);
 
   // sessionStorage에서 진행 상태 복구
   useEffect(() => {
@@ -64,7 +72,10 @@ export default function Quiz() {
       const saved = sessionStorage.getItem(STORAGE_KEY);
       if (saved) {
         const progress: QuizProgress = JSON.parse(saved);
-        if (progress.currentStep >= 0 && progress.currentStep < questions.length) {
+        if (
+          progress.currentStep >= 0 &&
+          progress.currentStep < questions.length
+        ) {
           setCurrentStep(progress.currentStep);
           setAnswers(progress.answers || {});
         }
@@ -92,7 +103,51 @@ export default function Quiz() {
   const progress = ((currentStep + 1) / questions.length) * 100;
 
   const handleSelect = (value: string) => {
-    setAnswers((prev) => ({ ...prev, [currentQuestion.id]: value }));
+    // 이미 진행 중이면 추가 클릭 무시 (동시 클릭 방지)
+    if (advancingRef.current) return;
+    advancingRef.current = true;
+    setIsAdvancing(true);
+
+    // 선택 저장
+    const nextAnswers = { ...answers, [currentQuestion.id]: value };
+    setAnswers(nextAnswers);
+
+    // 짧은 딜레이 후 자동 진행 (선택 피드백 표시용)
+    if (advanceTimeoutRef.current) {
+      clearTimeout(advanceTimeoutRef.current);
+    }
+    advanceTimeoutRef.current = setTimeout(() => {
+      const step = currentStepRef.current;
+      if (step < questions.length - 1) {
+        setCurrentStep(step + 1);
+        advancingRef.current = false;
+        setIsAdvancing(false);
+      } else {
+        // 마지막 질문이면 로딩 페이지로 이동
+        clearProgress();
+        navigatingCleanup();
+        navigate("/loading", { state: { answers: nextAnswers } });
+      }
+    }, 150);
+  };
+
+  // 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (advanceTimeoutRef.current) {
+        clearTimeout(advanceTimeoutRef.current);
+      }
+      advancingRef.current = false;
+    };
+  }, []);
+
+  const navigatingCleanup = () => {
+    if (advanceTimeoutRef.current) {
+      clearTimeout(advanceTimeoutRef.current);
+      advanceTimeoutRef.current = null;
+    }
+    advancingRef.current = false;
+    setIsAdvancing(false);
   };
 
   const handleNext = () => {
@@ -117,7 +172,8 @@ export default function Quiz() {
 
   // 키보드 네비게이션
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && isSelected) {
+    // 진행 중에는 추가 입력을 막고, 선택 후 자동 진행되므로 Enter 진행은 비활성화
+    if (e.key === "Enter" && isSelected && !isAdvancing) {
       handleNext();
     }
   };
@@ -176,7 +232,10 @@ export default function Quiz() {
           </div>
 
           {/* Question */}
-          <h1 className="text-4xl md:text-5xl font-black mb-12" id="question-title">
+          <h1
+            className="text-4xl md:text-5xl font-black mb-12"
+            id="question-title"
+          >
             {currentQuestion.question}
           </h1>
 
@@ -190,10 +249,15 @@ export default function Quiz() {
               <button
                 key={option.value}
                 onClick={() => handleSelect(option.value)}
+                disabled={isAdvancing}
                 className={`p-6 border-2 text-left transition-all rounded-lg ${
                   answers[currentQuestion.id] === option.value
                     ? "border-[#FB5010] bg-[#FB5010]/5"
-                    : "border-gray-200 hover:border-gray-400"
+                    : `border-gray-200 ${
+                        isAdvancing
+                          ? "opacity-60 cursor-not-allowed"
+                          : "hover:border-gray-400"
+                      }`
                 }`}
                 role="radio"
                 aria-checked={answers[currentQuestion.id] === option.value}
@@ -206,29 +270,6 @@ export default function Quiz() {
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="px-6 py-6 border-t border-gray-100">
-        <div className="max-w-2xl mx-auto">
-          <button
-            onClick={handleNext}
-            disabled={!isSelected}
-            className={`w-full flex items-center justify-center gap-3 py-4 font-bold text-lg rounded-full transition-all ${
-              isSelected
-                ? "bg-[#FB5010] text-white hover:bg-[#E04600]"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
-            aria-label={
-              currentStep === questions.length - 1
-                ? "결과 보기"
-                : `다음 질문으로 (현재 ${currentStep + 1}/${questions.length})`
-            }
-          >
-            <span>{currentStep === questions.length - 1 ? "결과 보기" : "다음"}</span>
-            <ArrowRight className="w-5 h-5" aria-hidden="true" />
-          </button>
-        </div>
-      </footer>
     </main>
   );
 }
