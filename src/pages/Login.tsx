@@ -1,20 +1,14 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { socialLogin } = useAuth();
 
-  // 로그인 후 원래 페이지로 이동
-  const from = location.state?.from || "/";
-
-  const handleSocial = async (provider: "google" | "kakao") => {
-    const ok = await socialLogin(provider);
-    if (ok) {
-      navigate(from, { replace: true });
-    }
+  const handleSocial = (provider: "google" | "kakao") => {
+    // 백엔드로 리다이렉트됨 (콜백 후 /auth/callback에서 처리)
+    socialLogin(provider);
   };
 
   return (

@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import ServerError from "./pages/ServerError";
 import NetworkError from "./pages/NetworkError";
 import ValidationExamples from "./pages/ValidationExamples";
+import AuthCallback from "./pages/AuthCallback";
 
 // Admin
 import AdminLayout from "./admin/components/AdminLayout";
@@ -40,6 +41,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
 
           {/* 퀴즈 답변 필요 */}
           <Route

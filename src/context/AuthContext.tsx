@@ -1,5 +1,7 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
+
+const API_BASE_URL = "http://localhost:8080";
 
 type SubscriptionPlan = "free" | "basic" | "pro";
 type UserRole = "user" | "admin" | "super_admin";
@@ -35,10 +37,11 @@ interface AuthContextType {
   savedOutfits: SavedOutfit[];
   login: (email: string, password: string) => Promise<boolean>;
   adminLogin: (email: string, password: string) => Promise<boolean>;
-  socialLogin: (provider: "google" | "kakao") => Promise<boolean>;
+  socialLogin: (provider: "google" | "kakao") => void;
   signup: (email: string, password: string, name: string) => Promise<boolean>;
   checkEmailDuplicate: (email: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  fetchUser: () => Promise<boolean>;
   saveOutfit: (outfit: Omit<SavedOutfit, "id" | "date">) => void;
   removeOutfit: (id: string) => void;
   subscribe: (plan: SubscriptionPlan) => Promise<boolean>;
@@ -129,30 +132,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return user?.role === "admin" || user?.role === "super_admin";
   };
 
-  const socialLogin = async (
-    provider: "google" | "kakao"
-  ): Promise<boolean> => {
-    // 모의 소셜 로그인
-    const email =
-      provider === "google"
-        ? "google_user@example.com"
-        : "kakao_user@example.com";
-    const name = provider === "google" ? "Google 사용자" : "Kakao 사용자";
-    setUser({
-      id: provider + "-1",
-      email,
-      name,
-      role: "user",
-      subscription: {
-        plan: "free",
-        startDate: null,
-        endDate: null,
-        isActive: false,
-      },
-      createdAt: new Date().toISOString().split("T")[0],
-    });
-    return true;
+  const socialLogin = (provider: "google" | "kakao"): void => {
+    // 백엔드 OAuth 엔드포인트로 리다이렉트
+    if (provider === "kakao") {
+      window.location.href = `${API_BASE_URL}/api/auth/login/kakao`;
+    } else if (provider === "google") {
+      // Google OAuth 추가 시 구현
+      console.warn("Google 로그인은 아직 구현되지 않았습니다.");
+    }
   };
+
+  const fetchUser = useCallback(async (): Promise<boolean> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        credentials: "include", // 세션 쿠키 포함
+      });
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        const userData = data.data;
+        setUser({
+          id: String(userData.userId),
+          email: userData.email,
+          name: userData.name,
+          role: "user",
+          subscription: {
+            plan: "free",
+            startDate: null,
+            endDate: null,
+            isActive: false,
+          },
+          createdAt: new Date().toISOString().split("T")[0],
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("사용자 정보 조회 실패:", error);
+      return false;
+    }
+  }, []);
 
   const signup = async (
     email: string,
@@ -193,8 +216,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return !existingEmails.includes(email.toLowerCase());
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = async (): Promise<void> => {
+    try {
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+    } finally {
+      setUser(null);
+    }
   };
 
   const saveOutfit = (outfit: Omit<SavedOutfit, "id" | "date">) => {
@@ -256,6 +288,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signup,
         checkEmailDuplicate,
         logout,
+        fetchUser,
         saveOutfit,
         removeOutfit,
         subscribe,
