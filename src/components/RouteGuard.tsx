@@ -1,9 +1,9 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import type { ReactNode } from "react";
 
 interface RouteGuardProps {
-  children: ReactNode;
+  children?: ReactNode;
   requireAuth?: boolean;
   redirectTo?: string;
 }
@@ -23,7 +23,8 @@ export function ProtectedRoute({
     );
   }
 
-  return <>{children}</>;
+  // 하위 라우팅(Outlet) 패턴 지원: children이 없으면 Outlet 렌더
+  return children ? <>{children}</> : <Outlet />;
 }
 
 // 로그인 상태에서 접근 불가 (로그인/회원가입 페이지)

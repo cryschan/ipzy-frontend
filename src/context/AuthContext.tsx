@@ -1,5 +1,6 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { fetchMe, logout as apiLogout } from "@/api/auth";
 
 type SubscriptionPlan = "free" | "basic" | "pro";
 type UserRole = "user" | "admin" | "super_admin";
@@ -36,9 +37,10 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   adminLogin: (email: string, password: string) => Promise<boolean>;
   socialLogin: (provider: "google" | "kakao") => Promise<boolean>;
+  refreshUserFromServer: () => Promise<boolean>;
   signup: (email: string, password: string, name: string) => Promise<boolean>;
   checkEmailDuplicate: (email: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   saveOutfit: (outfit: Omit<SavedOutfit, "id" | "date">) => void;
   removeOutfit: (id: string) => void;
   subscribe: (plan: SubscriptionPlan) => Promise<boolean>;
@@ -129,6 +131,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return user?.role === "admin" || user?.role === "super_admin";
   };
 
+  // 서버 세션 기반으로 현재 사용자 정보를 갱신
+  const refreshUserFromServer = async (): Promise<boolean> => {
+    try {
+      const res = await fetchMe();
+      if (res.success && res.data) {
+        const me = res.data;
+        setUser({
+          id: String(me.userId),
+          email: me.email,
+          name: me.name,
+          role: "user",
+          subscription: {
+            plan: "free",
+            startDate: null,
+            endDate: null,
+            isActive: true,
+          },
+          createdAt: new Date().toISOString().split("T")[0],
+        });
+        return true;
+      }
+      setUser(null);
+      return false;
+    } catch {
+      setUser(null);
+      return false;
+    }
+  };
+
   const socialLogin = async (
     provider: "google" | "kakao"
   ): Promise<boolean> => {
@@ -193,8 +224,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return !existingEmails.includes(email.toLowerCase());
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = async (): Promise<void> => {
+    try {
+      await apiLogout();
+    } catch {
+      // ignore API error; proceed with local cleanup
+    } finally {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch {
+        // ignore storage errors
+      }
+      setUser(null);
+    }
   };
 
   const saveOutfit = (outfit: Omit<SavedOutfit, "id" | "date">) => {
@@ -245,6 +288,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // 앱 첫 진입/새로고침 시 서버 세션으로 사용자 동기화
+  useEffect(() => {
+    void refreshUserFromServer();
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -253,6 +301,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         adminLogin,
         socialLogin,
+        refreshUserFromServer,
         signup,
         checkEmailDuplicate,
         logout,

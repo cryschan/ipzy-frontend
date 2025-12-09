@@ -6,8 +6,8 @@ export default function MyPage() {
   const navigate = useNavigate();
   const { user, savedOutfits, logout, removeOutfit, cancelSubscription } = useAuth();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/");
   };
 

@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import ServerError from "./pages/ServerError";
 import NetworkError from "./pages/NetworkError";
 import ValidationExamples from "./pages/ValidationExamples";
+import AuthCallback from "./pages/AuthCallback";
 
 // Admin
 import AdminLayout from "./admin/components/AdminLayout";
@@ -68,26 +69,16 @@ function App() {
               </GuestRoute>
             }
           />
+          {/* 소셜 로그인 콜백 */}
+          <Route path="/auth/callback" element={<AuthCallback />} />
           {/* 기존 /signup 접근 시 로그인으로 리다이렉트 */}
           <Route path="/signup" element={<Navigate to="/login" replace />} />
 
           {/* 로그인 필요 */}
-          <Route
-            path="/mypage"
-            element={
-              <ProtectedRoute>
-                <MyPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/payment"
-            element={
-              <ProtectedRoute>
-                <Payment />
-              </ProtectedRoute>
-            }
-          />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/mypage" element={<MyPage />} />
+            <Route path="/payment" element={<Payment />} />
+          </Route>
 
           {/* 개발/문서용 페이지 */}
           <Route path="/dev/validation" element={<ValidationExamples />} />

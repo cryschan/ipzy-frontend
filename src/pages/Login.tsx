@@ -1,11 +1,12 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { redirectToKakaoLogin } from "../api/auth";
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { socialLogin } = useAuth();
+  const { socialLogin, logout } = useAuth();
 
   // 로그인 후 원래 페이지로 이동
   const from = location.state?.from || "/";
@@ -37,6 +38,16 @@ export default function Login() {
       {/* Content */}
       <div className="flex-1 flex flex-col justify-center px-6 py-12">
         <div className="max-w-md mx-auto w-full">
+          {/* Error Banner (from OAuth callback) */}
+          {location.state?.errorMessage && (
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="mb-4 rounded-lg border border-red-200 bg-red-50 text-red-700 px-4 py-3 text-sm"
+            >
+              {location.state.errorMessage}
+            </div>
+          )}
           {/* Title */}
           <div className="text-center mb-10">
             <h1 className="text-3xl font-black mb-2">로그인</h1>
@@ -58,7 +69,12 @@ export default function Login() {
             </button>
             <button
               type="button"
-              onClick={() => handleSocial("kakao")}
+              onClick={async () => {
+                // OAuth 리다이렉트 후 돌아올 경로 저장
+                sessionStorage.setItem("postLoginRedirect", from);
+                await logout();
+                redirectToKakaoLogin();
+              }}
               className="w-full flex items-center justify-center gap-3 bg-[#FEE500] py-3 font-medium hover:bg-[#FDD800] transition-colors rounded-full"
               aria-label="카카오 계정으로 로그인"
             >
