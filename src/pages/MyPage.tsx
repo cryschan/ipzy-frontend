@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, LogOut, Trash2, ChevronRight, User, Heart, Settings, Crown, Zap, CreditCard } from "lucide-react";
+import { ArrowLeft, LogOut, Trash2, ChevronRight, User, Heart, Crown, Zap, CreditCard, UserCog } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export default function MyPage() {
@@ -48,9 +48,6 @@ export default function MyPage() {
               <h2 className="text-xl font-bold">{user.name}</h2>
               <p className="text-gray-500 text-sm">{user.email}</p>
             </div>
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <Settings className="w-5 h-5 text-gray-400" />
-            </button>
           </div>
 
           {/* Stats */}
@@ -154,6 +151,16 @@ export default function MyPage() {
         {/* Quick Menu */}
         <div className="bg-white rounded-2xl shadow-sm mb-6 overflow-hidden">
           <button
+            onClick={() => navigate("/mypage/account")}
+            className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-100"
+          >
+            <div className="flex items-center gap-3">
+              <UserCog className="w-5 h-5 text-gray-500" />
+              <span className="font-medium">계정 관리</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+          </button>
+          <button
             onClick={() => navigate("/pricing")}
             className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-100"
           >
@@ -163,17 +170,10 @@ export default function MyPage() {
             </div>
             <ChevronRight className="w-5 h-5 text-gray-400" />
           </button>
-          <button className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-100">
+          <button className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
             <div className="flex items-center gap-3">
               <Heart className="w-5 h-5 text-pink-500" />
               <span className="font-medium">찜한 아이템</span>
-            </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          </button>
-          <button className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
-            <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-gray-500" />
-              <span className="font-medium">설정</span>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-400" />
           </button>
