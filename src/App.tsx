@@ -12,6 +12,8 @@ import Loading from "./pages/Loading";
 import Result from "./pages/Result";
 import Login from "./pages/Login";
 import MyPage from "./pages/MyPage";
+import AccountManagement from "./pages/AccountManagement";
+import UserSettings from "./pages/UserSettings";
 import Pricing from "./pages/Pricing";
 import Payment from "./pages/Payment";
 import NotFound from "./pages/NotFound";
@@ -77,6 +79,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <MyPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mypage/account"
+            element={
+              <ProtectedRoute>
+                <AccountManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mypage/settings"
+            element={
+              <ProtectedRoute>
+                <UserSettings />
               </ProtectedRoute>
             }
           />
