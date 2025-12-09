@@ -12,6 +12,7 @@ import Loading from "./pages/Loading";
 import Result from "./pages/Result";
 import Login from "./pages/Login";
 import MyPage from "./pages/MyPage";
+import AccountManagement from "./pages/AccountManagement";
 import Pricing from "./pages/Pricing";
 import Payment from "./pages/Payment";
 import NotFound from "./pages/NotFound";
@@ -77,6 +78,7 @@ function App() {
           {/* 로그인 필요 */}
           <Route element={<ProtectedRoute />}>
             <Route path="/mypage" element={<MyPage />} />
+            <Route path="/mypage/account" element={<AccountManagement />} />
             <Route path="/payment" element={<Payment />} />
           </Route>
 
