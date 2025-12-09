@@ -21,9 +21,7 @@ export interface MeResponse {
  * 브라우저를 백엔드 카카오 OAuth2 로그인 엔드포인트로 리다이렉트합니다.
  * 클릭 핸들러에서 호출해야 하며, 호출 시 앱에서 벗어나 로그인 페이지로 이동합니다.
  */
-export async function redirectToKakaoLogin(_options?: {
-  force?: boolean;
-}): Promise<void> {
+export async function redirectToKakaoLogin(): Promise<void> {
   // OAuth 시작은 XHR이 아닌 "탑레벨 네비게이션"으로 처리해야 CORS 문제를 피할 수 있음
   const base =
     (api.defaults.baseURL as string | undefined) ||

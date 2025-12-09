@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import type { ReactNode } from "react";
 import { fetchMe, logout as apiLogout } from "@/api/auth";
 
@@ -132,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // 서버 세션 기반으로 현재 사용자 정보를 갱신
-  const refreshUserFromServer = async (): Promise<boolean> => {
+  const refreshUserFromServer = useCallback(async (): Promise<boolean> => {
     try {
       const res = await fetchMe();
       if (res.success && res.data) {
@@ -158,7 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       return false;
     }
-  };
+  }, []);
 
   const socialLogin = async (
     provider: "google" | "kakao"
