@@ -15,7 +15,6 @@ export default function AccountManagement() {
   const [form, setForm] = useState({
     name: user?.name || "",
     phone: "",
-    profileImageUrl: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,11 +22,6 @@ export default function AccountManagement() {
 
     if (!form.name.trim()) {
       setError("이름은 필수입니다.");
-      return;
-    }
-
-    if (form.phone && !/^\d{2,3}-\d{3,4}-\d{4}$/.test(form.phone)) {
-      setError("전화번호 형식이 올바르지 않습니다. (예: 010-1234-5678)");
       return;
     }
 
@@ -47,7 +41,8 @@ export default function AccountManagement() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setWithdrawing(false);
     logout();
-    navigate("/", { replace: true });
+    // React 라우팅 우회하여 홈으로 이동
+    window.location.replace("/");
   };
 
   return (
@@ -72,15 +67,7 @@ export default function AccountManagement() {
           <div className="flex flex-col items-center mb-8">
             <div className="relative">
               <div className="w-24 h-24 bg-[#FB5010] rounded-full flex items-center justify-center overflow-hidden">
-                {form.profileImageUrl ? (
-                  <img
-                    src={form.profileImageUrl}
-                    alt="프로필"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="w-12 h-12 text-white" />
-                )}
+                <User className="w-12 h-12 text-white" />
               </div>
               <button
                 type="button"
@@ -118,37 +105,21 @@ export default function AccountManagement() {
               />
             </div>
 
-            {/* 전화번호 */}
-            <div className="mb-4">
+            {/* 전화번호 (변경 불가) */}
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 전화번호
               </label>
               <input
                 type="tel"
                 value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FB5010] focus:border-transparent"
+                readOnly
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed"
                 placeholder="010-1234-5678"
               />
-              <p className="text-xs text-gray-400 mt-1">형식: 010-1234-5678</p>
+              <p className="text-xs text-gray-400 mt-1">전화번호는 변경할 수 없습니다</p>
             </div>
 
-            {/* 프로필 이미지 URL */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                프로필 이미지 URL
-              </label>
-              <input
-                type="url"
-                value={form.profileImageUrl}
-                onChange={(e) =>
-                  setForm({ ...form, profileImageUrl: e.target.value })
-                }
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FB5010] focus:border-transparent"
-                placeholder="https://example.com/profile.jpg"
-                maxLength={500}
-              />
-            </div>
           </div>
 
           {/* 저장 버튼 */}
