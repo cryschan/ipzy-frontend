@@ -99,9 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           plan: "free",
           startDate: null,
           endDate: null,
-          isActive: false,
+          isActive: true,
         },
-        createdAt: new Date().toISOString().split("T")[0],
+        createdAt: new Date().toISOString().split("T")[0], // TODO: 서버에서 createdAt 추가 예정
       });
       return true;
     }
@@ -237,8 +237,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // ignore API error; proceed with local cleanup
     } finally {
       try {
-        localStorage.clear();
-        sessionStorage.clear();
+        // 인증 관련 키만 제거
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("user_id");
+        sessionStorage.removeItem("session_id");
+        // 접두사 기반 일괄 제거 (예: auth_*)
+        const removePrefixed = (storage: Storage, prefix: string) => {
+          Object.keys(storage).forEach((key) => {
+            if (key.startsWith(prefix)) storage.removeItem(key);
+          });
+        };
+        removePrefixed(localStorage, "auth_");
+        removePrefixed(sessionStorage, "auth_");
       } catch {
         // ignore storage errors
       }

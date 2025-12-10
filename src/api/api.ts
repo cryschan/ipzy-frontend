@@ -22,8 +22,18 @@ api.interceptors.response.use(
     if (status === 401 || status === 419) {
       // 1) 로컬 저장소 정리
       try {
-        localStorage.clear();
-        sessionStorage.clear();
+        // 인증 관련 키만 제거
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("user_id");
+        sessionStorage.removeItem("session_id");
+        // 접두사 기반 일괄 제거 (예: auth_*)
+        const removePrefixed = (storage: Storage, prefix: string) => {
+          Object.keys(storage).forEach((key) => {
+            if (key.startsWith(prefix)) storage.removeItem(key);
+          });
+        };
+        removePrefixed(localStorage, "auth_");
+        removePrefixed(sessionStorage, "auth_");
       } catch {
         // ignore storage errors
       }

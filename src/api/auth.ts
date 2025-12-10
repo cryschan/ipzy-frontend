@@ -23,10 +23,13 @@ export interface MeResponse {
  */
 export async function redirectToKakaoLogin(): Promise<void> {
   // OAuth 시작은 XHR이 아닌 "탑레벨 네비게이션"으로 처리해야 CORS 문제를 피할 수 있음
-  const base =
-    (api.defaults.baseURL as string | undefined) ||
-    ((import.meta as any)?.env?.VITE_API_BASE_URL as string | undefined) ||
-    "http://localhost:8080";
+  const base = import.meta.env?.VITE_API_BASE_URL as string | undefined;
+
+  if (!base) {
+    throw new Error(
+      "API base URL is not configured. Please set VITE_API_BASE_URL."
+    );
+  }
   const url = `${base.replace(/\/$/, "")}/api/auth/login/kakao`;
   window.location.assign(url);
 }
