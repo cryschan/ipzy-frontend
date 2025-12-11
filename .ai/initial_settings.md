@@ -1,4 +1,4 @@
-# 프론트 초기 세팅 작업
+# 프론트 초기 세팅
 
 > React, Typescript, axios, tailwind, shadcn, Vite 스택 기준
 
@@ -19,41 +19,38 @@
 
 - ESLint는 `eslint.config.js` 기준 사용
 - Prettier 설치: `npm i -D prettier eslint-config-prettier`
-- `.prettierrc` 예시: `{ "endOfLine": "auto", "tabWidth": 2 }`
-
-  .eslintrc.json (필수 최소 구성)
-
-```json
-{
-  "extends": ["plugin:prettier/recommended"],
-  "plugins": ["import"],
-  "rules": {
-    "prettier/prettier": ["error", { "endOfLine": "auto" }],
-    "no-console": ["warn", { "allow": ["warn", "error"] }],
-    "import/order": [
-      "warn",
-      {
-        "groups": [
-          "builtin",
-          "external",
-          "internal",
-          "parent",
-          "sibling",
-          "index"
-        ],
-        "alphabetize": { "order": "asc", "caseInsensitive": true }
-      }
-    ]
-  },
-  "settings": {
-    "import/resolver": {
-      "node": {
-        "moduleDirectory": ["node_modules", "src"]
-      }
-    }
-  }
-}
-```
+- `.prettierrc` 예시: `{ "endOfLine": "auto", "tabWidth": 2 `
+- eslint.config.js에 아래 내용도 추가
+  ```
+    plugins: {
+      import: eslintPluginImport,
+    },
+    rules: {
+      "prettier/prettier": ["error", { endOfLine: "auto" }],
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "import/order": [
+        "warn",
+        {
+          groups: [
+            "builtin",
+            "external",
+            "internal",
+            "parent",
+            "sibling",
+            "index",
+          ],
+          alphabetize: { order: "asc", caseInsensitive: true },
+        },
+      ],
+    },
+    settings: {
+      "import/resolver": {
+        node: {
+          moduleDirectory: ["node_modules", "src"],
+        },
+      },
+    },
+  ```
 
 4. .env.example 추가
 
