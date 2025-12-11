@@ -4,14 +4,24 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../components/Logo";
 import { navigateToQuiz } from "../utils/quizApi";
+import { redirectToKakaoLogin } from "../api/auth";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleStart = () => {
     navigateToQuiz(navigate);
+  };
+  const handleLogin = async () => {
+    // 로그인 후 돌아올 경로 저장 (현재 경로)
+    sessionStorage.setItem(
+      "postLoginRedirect",
+      window.location.pathname || "/"
+    );
+    await logout();
+    redirectToKakaoLogin();
   };
 
   return (
@@ -41,25 +51,22 @@ export default function Home() {
                   <span>{user.name}</span>
                 </button>
                 <button
-                  onClick={handleStart}
-                  className="bg-[#FB5010] text-white px-4 py-2 text-sm font-medium hover:bg-[#E04600] transition-colors rounded-full"
+                  onClick={async () => {
+                    await logout();
+                    navigate("/");
+                  }}
+                  className="text-sm text-gray-600 underline hover:text-[#1a1a1a] transition-colors"
                 >
-                  Start
+                  로그아웃
                 </button>
               </>
             ) : (
               <>
                 <button
-                  onClick={() => navigate("/login")}
-                  className="text-sm text-gray-600 hover:text-[#1a1a1a] transition-colors"
+                  onClick={handleLogin}
+                  className="text-sm text-gray-600 underline hover:text-[#1a1a1a] transition-colors"
                 >
                   로그인
-                </button>
-                <button
-                  onClick={handleStart}
-                  className="bg-[#FB5010] text-white px-4 py-2 text-sm font-medium hover:bg-[#E04600] transition-colors rounded-full"
-                >
-                  Start
                 </button>
               </>
             )}
@@ -84,7 +91,7 @@ export default function Home() {
             ) : (
               <button
                 onClick={() => {
-                  navigate("/login");
+                  handleLogin();
                   setMenuOpen(false);
                 }}
                 className="text-2xl font-bold"

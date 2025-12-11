@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { AuthProvider } from "./context/AuthContext";
 import {
   ProtectedRoute,
@@ -13,13 +15,13 @@ import Result from "./pages/Result";
 import Login from "./pages/Login";
 import MyPage from "./pages/MyPage";
 import AccountManagement from "./pages/AccountManagement";
-import UserSettings from "./pages/UserSettings";
 import Pricing from "./pages/Pricing";
 import Payment from "./pages/Payment";
 import NotFound from "./pages/NotFound";
 import ServerError from "./pages/ServerError";
 import NetworkError from "./pages/NetworkError";
 import ValidationExamples from "./pages/ValidationExamples";
+import AuthCallback from "./pages/AuthCallback";
 
 // Admin
 import AdminLayout from "./admin/components/AdminLayout";
@@ -33,111 +35,94 @@ import Products from "./admin/pages/Products";
 import QuizManagement from "./admin/pages/QuizManagement";
 import Settings from "./admin/pages/Settings";
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* 공개 페이지 */}
-          <Route path="/" element={<Home />} />
-          <Route path="/quiz" element={<Quiz />} />
-          <Route path="/pricing" element={<Pricing />} />
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* 공개 페이지 */}
+            <Route path="/" element={<Home />} />
+            <Route path="/quiz" element={<Quiz />} />
+            <Route path="/pricing" element={<Pricing />} />
 
-          {/* 퀴즈 답변 필요 */}
-          <Route
-            path="/loading"
-            element={
-              <QuizRequiredRoute>
-                <Loading />
-              </QuizRequiredRoute>
-            }
-          />
-          <Route
-            path="/result"
-            element={
-              <QuizRequiredRoute>
-                <Result />
-              </QuizRequiredRoute>
-            }
-          />
+            {/* 퀴즈 답변 필요 */}
+            <Route
+              path="/loading"
+              element={
+                <QuizRequiredRoute>
+                  <Loading />
+                </QuizRequiredRoute>
+              }
+            />
+            <Route
+              path="/result"
+              element={
+                <QuizRequiredRoute>
+                  <Result />
+                </QuizRequiredRoute>
+              }
+            />
 
-          {/* 비로그인 사용자만 접근 가능 */}
-          <Route
-            path="/login"
-            element={
-              <GuestRoute>
-                <Login />
-              </GuestRoute>
-            }
-          />
-          {/* 기존 /signup 접근 시 로그인으로 리다이렉트 */}
-          <Route path="/signup" element={<Navigate to="/login" replace />} />
+            {/* 비로그인 사용자만 접근 가능 */}
+            <Route
+              path="/login"
+              element={
+                <GuestRoute>
+                  <Login />
+                </GuestRoute>
+              }
+            />
+            {/* 소셜 로그인 콜백 */}
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            {/* 기존 /signup 접근 시 로그인으로 리다이렉트 */}
+            <Route path="/signup" element={<Navigate to="/login" replace />} />
 
-          {/* 로그인 필요 */}
-          <Route
-            path="/mypage"
-            element={
-              <ProtectedRoute>
-                <MyPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/mypage/account"
-            element={
-              <ProtectedRoute>
-                <AccountManagement />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/mypage/settings"
-            element={
-              <ProtectedRoute>
-                <UserSettings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/payment"
-            element={
-              <ProtectedRoute>
-                <Payment />
-              </ProtectedRoute>
-            }
-          />
+            {/* 로그인 필요 */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/mypage" element={<MyPage />} />
+              <Route path="/mypage/account" element={<AccountManagement />} />
+              <Route path="/payment" element={<Payment />} />
+            </Route>
 
-          {/* 개발/문서용 페이지 */}
-          <Route path="/dev/validation" element={<ValidationExamples />} />
+            {/* 개발/문서용 페이지 */}
+            <Route path="/dev/validation" element={<ValidationExamples />} />
 
-          {/* 관리자 페이지 */}
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route
-            path="/admin"
-            element={
-              <AdminRoute>
-                <AdminLayout />
-              </AdminRoute>
-            }
-          >
-            <Route index element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="users" element={<UserList />} />
-            <Route path="users/:id" element={<UserDetail />} />
-            <Route path="subscriptions" element={<Subscriptions />} />
-            <Route path="payments" element={<Payments />} />
-            <Route path="products" element={<Products />} />
-            <Route path="quiz" element={<QuizManagement />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
+            {/* 관리자 페이지 */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminLayout />
+                </AdminRoute>
+              }
+            >
+              <Route
+                index
+                element={<Navigate to="/admin/dashboard" replace />}
+              />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="users" element={<UserList />} />
+              <Route path="users/:id" element={<UserDetail />} />
+              <Route path="subscriptions" element={<Subscriptions />} />
+              <Route path="payments" element={<Payments />} />
+              <Route path="products" element={<Products />} />
+              <Route path="quiz" element={<QuizManagement />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
 
-          {/* 에러 페이지 */}
-          <Route path="/error/500" element={<ServerError />} />
-          <Route path="/error/network" element={<NetworkError />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            {/* 에러 페이지 */}
+            <Route path="/error/500" element={<ServerError />} />
+            <Route path="/error/network" element={<NetworkError />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
