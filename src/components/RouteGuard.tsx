@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import type { ReactNode } from "react";
 
@@ -13,8 +14,22 @@ export function ProtectedRoute({
   children,
   redirectTo = "/login",
 }: RouteGuardProps) {
-  const { user } = useAuth();
+  const { user, refreshUserFromServer } = useAuth();
   const location = useLocation();
+  const attemptedRef = useRef(false);
+  const [loading, setLoading] = useState(() => !user);
+
+  useEffect(() => {
+    if (!user && !attemptedRef.current) {
+      attemptedRef.current = true;
+      setLoading(true);
+      void refreshUserFromServer().finally(() => setLoading(false));
+    }
+  }, [user, refreshUserFromServer]);
+
+  if (loading) {
+    return null;
+  }
 
   if (!user) {
     // 로그인 후 원래 페이지로 돌아갈 수 있도록 현재 위치 저장
@@ -35,11 +50,12 @@ export function GuestRoute({ children, redirectTo = "/" }: RouteGuardProps) {
     return <Navigate to={redirectTo} replace />;
   }
 
-  return <>{children}</>;
+  // 하위 라우팅(Outlet) 패턴 지원: children이 없으면 Outlet 렌더
+  return children ? <>{children}</> : <Outlet />;
 }
 
 // 퀴즈 답변이 필요한 페이지 보호 (Loading, Result)
-export function QuizRequiredRoute({ children }: { children: ReactNode }) {
+export function QuizRequiredRoute({ children }: RouteGuardProps) {
   const location = useLocation();
 
   // state에 answers가 없으면 퀴즈로 리다이렉트
@@ -47,12 +63,27 @@ export function QuizRequiredRoute({ children }: { children: ReactNode }) {
     return <Navigate to="/quiz" replace />;
   }
 
-  return <>{children}</>;
+  // 하위 라우팅(Outlet) 패턴 지원: children이 없으면 Outlet 렌더
+  return children ? <>{children}</> : <Outlet />;
 }
 
 // 관리자 페이지 보호
-export function AdminRoute({ children }: { children: ReactNode }) {
-  const { user, isAdmin } = useAuth();
+export function AdminRoute({ children }: RouteGuardProps) {
+  const { user, isAdmin, refreshUserFromServer } = useAuth();
+  const attemptedRef = useRef(false);
+  const [loading, setLoading] = useState(() => !user);
+
+  useEffect(() => {
+    if (!user && !attemptedRef.current) {
+      attemptedRef.current = true;
+      setLoading(true);
+      void refreshUserFromServer().finally(() => setLoading(false));
+    }
+  }, [user, refreshUserFromServer]);
+
+  if (loading) {
+    return null;
+  }
 
   if (!user) {
     return <Navigate to="/admin/login" replace />;
@@ -62,5 +93,6 @@ export function AdminRoute({ children }: { children: ReactNode }) {
     return <Navigate to="/" replace />;
   }
 
-  return <>{children}</>;
+  // 하위 라우팅(Outlet) 패턴 지원: children이 없으면 Outlet 렌더
+  return children ? <>{children}</> : <Outlet />;
 }
