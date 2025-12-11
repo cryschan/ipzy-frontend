@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import { fetchMe, logout as apiLogout } from "@/api/auth";
 
@@ -303,11 +297,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     }
   };
-
-  // 앱 첫 진입/새로고침 시 서버 세션으로 사용자 동기화
-  useEffect(() => {
-    void refreshUserFromServer();
-  }, []);
 
   return (
     <AuthContext.Provider

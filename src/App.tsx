@@ -49,36 +49,16 @@ function App() {
             <Route path="/pricing" element={<Pricing />} />
 
             {/* 퀴즈 답변 필요 */}
-            <Route
-              path="/loading"
-              element={
-                <QuizRequiredRoute>
-                  <Loading />
-                </QuizRequiredRoute>
-              }
-            />
-            <Route
-              path="/result"
-              element={
-                <QuizRequiredRoute>
-                  <Result />
-                </QuizRequiredRoute>
-              }
-            />
+            <Route element={<QuizRequiredRoute />}>
+              <Route path="/loading" element={<Loading />} />
+              <Route path="/result" element={<Result />} />
+            </Route>
 
             {/* 비로그인 사용자만 접근 가능 */}
-            <Route
-              path="/login"
-              element={
-                <GuestRoute>
-                  <Login />
-                </GuestRoute>
-              }
-            />
-            {/* 소셜 로그인 콜백 */}
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            {/* 기존 /signup 접근 시 로그인으로 리다이렉트 */}
-            <Route path="/signup" element={<Navigate to="/login" replace />} />
+            <Route element={<GuestRoute />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+            </Route>
 
             {/* 로그인 필요 */}
             <Route element={<ProtectedRoute />}>
@@ -87,32 +67,27 @@ function App() {
               <Route path="/payment" element={<Payment />} />
             </Route>
 
-            {/* 개발/문서용 페이지 */}
-            <Route path="/dev/validation" element={<ValidationExamples />} />
-
             {/* 관리자 페이지 */}
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route
-              path="/admin"
-              element={
-                <AdminRoute>
-                  <AdminLayout />
-                </AdminRoute>
-              }
-            >
-              <Route
-                index
-                element={<Navigate to="/admin/dashboard" replace />}
-              />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="users" element={<UserList />} />
-              <Route path="users/:id" element={<UserDetail />} />
-              <Route path="subscriptions" element={<Subscriptions />} />
-              <Route path="payments" element={<Payments />} />
-              <Route path="products" element={<Products />} />
-              <Route path="quiz" element={<QuizManagement />} />
-              <Route path="settings" element={<Settings />} />
+            <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route
+                  index
+                  element={<Navigate to="/admin/dashboard" replace />}
+                />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="users" element={<UserList />} />
+                <Route path="users/:id" element={<UserDetail />} />
+                <Route path="subscriptions" element={<Subscriptions />} />
+                <Route path="payments" element={<Payments />} />
+                <Route path="products" element={<Products />} />
+                <Route path="quiz" element={<QuizManagement />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
             </Route>
+
+            {/* 개발/문서용 페이지 */}
+            <Route path="/dev/validation" element={<ValidationExamples />} />
 
             {/* 에러 페이지 */}
             <Route path="/error/500" element={<ServerError />} />
