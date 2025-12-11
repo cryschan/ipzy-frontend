@@ -16,8 +16,8 @@ export function ProtectedRoute({
 }: RouteGuardProps) {
   const { user, refreshUserFromServer } = useAuth();
   const location = useLocation();
-  const [loading, setLoading] = useState(false);
   const attemptedRef = useRef(false);
+  const [loading, setLoading] = useState(() => !user);
 
   useEffect(() => {
     if (!user && !attemptedRef.current) {
@@ -70,8 +70,8 @@ export function QuizRequiredRoute({ children }: RouteGuardProps) {
 // 관리자 페이지 보호
 export function AdminRoute({ children }: RouteGuardProps) {
   const { user, isAdmin, refreshUserFromServer } = useAuth();
-  const [loading, setLoading] = useState(false);
   const attemptedRef = useRef(false);
+  const [loading, setLoading] = useState(() => !user);
 
   useEffect(() => {
     if (!user && !attemptedRef.current) {
