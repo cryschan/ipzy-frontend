@@ -1,59 +1,103 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import {
+  getStoredSession,
+  startQuizSession,
+  saveQuizAnswer,
+  completeQuizSession,
+  clearStoredSession,
+} from "../utils/quizApi";
 
-const STORAGE_KEY = "quiz_progress";
+const QUIZ_ID = 1; // 기본 퀴즈 ID
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
-const questions = [
-  {
-    id: 1,
-    question: "어디 가요?",
-    options: [
-      { value: "school", label: "학교" },
-      { value: "work", label: "회사" },
-      { value: "date", label: "데이트" },
-      { value: "casual", label: "외출" },
-    ],
-  },
-  {
-    id: 2,
-    question: "어떻게 보이고 싶어요?",
-    options: [
-      { value: "clean", label: "깔끔하게" },
-      { value: "comfortable", label: "편하게" },
-      { value: "cool", label: "멋있게" },
-      { value: "unique", label: "독특하게" },
-    ],
-  },
-  {
-    id: 3,
-    question: "체형 고민?",
-    options: [
-      { value: "none", label: "없음" },
-      { value: "belly", label: "배" },
-      { value: "thin", label: "마른편" },
-      { value: "height", label: "키" },
-    ],
-  },
-  {
-    id: 4,
-    question: "예산은?",
-    options: [
-      { value: "100k", label: "10만원" },
-      { value: "200k", label: "20만원" },
-      { value: "300k", label: "30만원" },
-      { value: "unlimited", label: "무관" },
-    ],
-  },
-];
-
-interface QuizProgress {
-  currentStep: number;
-  answers: Record<number, string>;
+// API 응답 타입
+interface ApiOption {
+  optionId: number;
+  text: string;
+  value: string;
+  imageUrl: string | null;
+  displayOrder: number;
 }
+
+interface ApiQuestion {
+  questionId: number;
+  text: string;
+  type: string;
+  required: boolean;
+  displayOrder: number;
+  options: ApiOption[];
+}
+
+// 컴포넌트에서 사용하는 타입
+interface Question {
+  id: number;
+  question: string;
+  options: {
+    value: string;
+    label: string;
+  }[];
+}
+
+// API 응답을 컴포넌트 형식으로 변환
+const transformQuestions = (apiQuestions: ApiQuestion[]): Question[] => {
+  return apiQuestions
+    .sort((a, b) => a.displayOrder - b.displayOrder)
+    .map((apiQuestion) => ({
+      id: apiQuestion.questionId,
+      question: apiQuestion.text,
+      options: apiQuestion.options
+        .sort((a, b) => a.displayOrder - b.displayOrder)
+        .map((option) => ({
+          value: option.value,
+          label: option.text,
+        })),
+    }));
+};
+
+// startQuizSession과 getStoredSession은 utils/quizApi에서 import
+
+// API 응답 타입 (로컬)
+interface ApiQuestionResponse {
+  success: boolean;
+  data?: ApiQuestion[];
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
+// 퀴즈 질문 가져오기
+const fetchQuestions = async (quizId: number): Promise<Question[]> => {
+  const response = await fetch(
+    `${API_BASE_URL}/api/quizzes/${quizId}/questions`
+  );
+
+  const data: ApiQuestionResponse = await response.json();
+
+  // 에러 필드가 있거나 success가 false이면 에러 처리
+  if (data.error || !data.success) {
+    const error = data.error;
+    if (error) {
+      throw new Error(`${error.code}: ${error.message}`);
+    }
+    throw new Error("퀴즈를 불러오는데 실패했습니다");
+  }
+
+  if (!data.data) {
+    throw new Error("퀴즈 데이터 형식이 올바르지 않습니다");
+  }
+
+  return transformQuestions(data.data);
+};
 
 export default function Quiz() {
   const navigate = useNavigate();
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isRestored, setIsRestored] = useState(false);
@@ -66,80 +110,117 @@ export default function Quiz() {
     currentStepRef.current = currentStep;
   }, [currentStep]);
 
-  // sessionStorage에서 진행 상태 복구
+  // 퀴즈 세션 시작, 질문 로드, 진행 상태 복구
   useEffect(() => {
-    try {
-      const saved = sessionStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const progress: QuizProgress = JSON.parse(saved);
+    const loadQuiz = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // 질문 로드 (세션 생성 전에 먼저 로드)
+        const loadedQuestions = await fetchQuestions(QUIZ_ID);
+        setQuestions(loadedQuestions);
+
+        // 기존 세션이 없거나 다른 퀴즈의 세션이거나 완료된 세션이면 새로 시작
+        const existingSession = getStoredSession();
         if (
-          progress.currentStep >= 0 &&
-          progress.currentStep < questions.length
+          !existingSession ||
+          existingSession.quizId !== QUIZ_ID ||
+          existingSession.completed
         ) {
-          setCurrentStep(progress.currentStep);
-          setAnswers(progress.answers || {});
+          await startQuizSession(QUIZ_ID);
         }
+
+        // 중간에 빠져나가면 복구하지 않고 처음부터 시작
+        // 진행 상태 복구 로직 제거
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "퀴즈를 불러오는데 실패했습니다"
+        );
+      } finally {
+        setIsLoading(false);
+        setIsRestored(true);
       }
-    } catch {
-      // 파싱 실패 시 무시
-    }
-    setIsRestored(true);
+    };
+
+    loadQuiz();
   }, []);
 
-  // 상태 변경 시 sessionStorage에 저장
-  useEffect(() => {
-    if (!isRestored) return;
+  // 중간에 빠져나가면 복구하지 않으므로 sessionStorage 저장 제거
 
-    const progress: QuizProgress = { currentStep, answers };
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-  }, [currentStep, answers, isRestored]);
-
-  // 퀴즈 완료 시 sessionStorage 정리
-  const clearProgress = useCallback(() => {
-    sessionStorage.removeItem(STORAGE_KEY);
+  // 퀴즈 세션 및 진행 상태 완전 초기화
+  const resetQuizSession = useCallback(() => {
+    clearStoredSession();
   }, []);
 
-  const currentQuestion = questions[currentStep];
-  const progress = ((currentStep + 1) / questions.length) * 100;
-
-  const handleSelect = (value: string) => {
+  const handleSelect = async (value: string) => {
     // 이미 진행 중이면 추가 클릭 무시 (동시 클릭 방지)
     if (advancingRef.current) return;
     advancingRef.current = true;
     setIsAdvancing(true);
 
-    // 선택 저장
+    // 현재 질문 가져오기
+    const currentQuestion = questions[currentStep];
+
+    // 선택 저장 (로컬 상태)
     const nextAnswers = { ...answers, [currentQuestion.id]: value };
     setAnswers(nextAnswers);
+
+    // 백엔드에 답변 저장
+    try {
+      const session = getStoredSession();
+      if (session) {
+        await saveQuizAnswer(session.sessionId, currentQuestion.id, [value]);
+      }
+    } catch (error) {
+      console.error("답변 저장 실패:", error);
+      // 답변 저장 실패해도 UI는 계속 진행 (사용자 경험 유지)
+      // 필요시 에러 메시지 표시 가능
+    }
 
     // 짧은 딜레이 후 자동 진행 (선택 피드백 표시용)
     if (advanceTimeoutRef.current) {
       clearTimeout(advanceTimeoutRef.current);
     }
-    advanceTimeoutRef.current = setTimeout(() => {
+    advanceTimeoutRef.current = setTimeout(async () => {
       const step = currentStepRef.current;
       if (step < questions.length - 1) {
         setCurrentStep(step + 1);
         advancingRef.current = false;
         setIsAdvancing(false);
       } else {
-        // 마지막 질문이면 로딩 페이지로 이동
-        clearProgress();
+        // 마지막 질문이면 세션 완료 처리 후 로딩 페이지로 이동
+        try {
+          const session = getStoredSession();
+          if (session) {
+            await completeQuizSession(session.sessionId);
+          }
+        } catch (error) {
+          console.error("세션 완료 실패:", error);
+          // 세션 완료 실패해도 로딩 페이지로 이동 (사용자 경험 유지)
+        }
         navigatingCleanup();
         navigate("/loading", { state: { answers: nextAnswers } });
       }
     }, 150);
   };
 
-  // 언마운트 시 타이머 정리
+  // 언마운트 시 타이머 정리 및 세션 초기화
   useEffect(() => {
     return () => {
       if (advanceTimeoutRef.current) {
         clearTimeout(advanceTimeoutRef.current);
       }
       advancingRef.current = false;
+
+      // 페이지를 떠날 때 (완료되지 않은 경우) 세션 초기화
+      // 완료된 세션은 유지하고, 진행 중인 세션만 초기화
+      const session = getStoredSession();
+      if (session && !session.completed) {
+        resetQuizSession();
+      }
     };
-  }, []);
+  }, [resetQuizSession]);
 
   const navigatingCleanup = () => {
     if (advanceTimeoutRef.current) {
@@ -150,12 +231,20 @@ export default function Quiz() {
     setIsAdvancing(false);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < questions.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      // 모든 질문 완료 - 진행 상태 삭제 후 로딩 페이지로 이동
-      clearProgress();
+      // 모든 질문 완료 - 세션 완료 처리 후 로딩 페이지로 이동
+      try {
+        const session = getStoredSession();
+        if (session) {
+          await completeQuizSession(session.sessionId);
+        }
+      } catch (error) {
+        console.error("세션 완료 실패:", error);
+        // 세션 완료 실패해도 로딩 페이지로 이동 (사용자 경험 유지)
+      }
       navigate("/loading", { state: { answers } });
     }
   };
@@ -164,8 +253,8 @@ export default function Quiz() {
     if (currentStep > 0) {
       setCurrentStep((prev) => prev - 1);
     } else {
-      // 첫 질문에서 뒤로가기 시 진행 상태 삭제
-      clearProgress();
+      // 첫 질문에서 뒤로가기 시 세션 및 진행 상태 완전 초기화
+      resetQuizSession();
       navigate("/");
     }
   };
@@ -178,6 +267,41 @@ export default function Quiz() {
     }
   };
 
+  // 로딩 중이거나 질문이 없을 때
+  if (isLoading || questions.length === 0) {
+    return (
+      <main className="min-h-screen bg-white text-[#1a1a1a] flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg text-gray-600">퀴즈를 불러오는 중...</div>
+        </div>
+      </main>
+    );
+  }
+
+  // 에러 발생 시
+  if (error) {
+    return (
+      <main className="min-h-screen bg-white text-[#1a1a1a] flex items-center justify-center">
+        <div className="text-center px-6">
+          <div className="text-lg text-red-600 mb-4">{error}</div>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-[#FB5010] text-white rounded-lg hover:bg-[#FB5010]/90 transition-colors"
+          >
+            다시 시도
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  const currentQuestion = questions[currentStep];
+  // 현재 질문 위치 기준으로 진행률 계산 (뒤로 가면 progress 바도 줄어듦)
+  // 현재 질문까지 답변한 질문 수만 카운트
+  const answeredCount = questions
+    .slice(0, currentStep)
+    .filter((q) => answers[q.id]).length;
+  const progress = (answeredCount / questions.length) * 100;
   const isSelected = answers[currentQuestion.id];
 
   // 복구 전 로딩 상태 표시 방지
@@ -210,10 +334,10 @@ export default function Quiz() {
       <div
         className="w-full h-1 bg-gray-100"
         role="progressbar"
-        aria-valuenow={currentStep + 1}
-        aria-valuemin={1}
+        aria-valuenow={answeredCount}
+        aria-valuemin={0}
         aria-valuemax={questions.length}
-        aria-label={`질문 ${currentStep + 1}/${questions.length}`}
+        aria-label={`답변 완료 ${answeredCount}/${questions.length}`}
       >
         <div
           className="h-full bg-[#FB5010] transition-all duration-300"

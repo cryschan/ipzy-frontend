@@ -1,5 +1,6 @@
 import { ArrowRight, RotateCcw, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { navigateToQuiz } from "../utils/quizApi";
 
 // 모의 데이터
 const mockResult = {
@@ -30,7 +31,7 @@ export default function Result() {
   const navigate = useNavigate();
 
   const handleRetry = () => {
-    navigate("/quiz");
+    navigateToQuiz(navigate);
   };
 
   const handleHome = () => {

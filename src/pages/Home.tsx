@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../components/Logo";
+import { navigateToQuiz } from "../utils/quizApi";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -10,7 +11,7 @@ export default function Home() {
   const { user } = useAuth();
 
   const handleStart = () => {
-    navigate("/quiz");
+    navigateToQuiz(navigate);
   };
 
   return (
