@@ -1,5 +1,7 @@
 # 프론트 초기 세팅 작업
 
+> React, Typescript, axios, tailwind, shadcn, Vite 스택 기준
+
 1. Node 버전
 
 - `.nvmrc` 에 Node 버전 명시 → `nvm use`로 적용
@@ -9,14 +11,49 @@
    `package.json`에 이미 설치되어 있는지 확인 후 버전 호환성 고려해서 아래 라이브러리 설치
 
 - 런타임: `react react-dom react-router-dom axios(혹은 ky)`
-- 스타일: `tailwindcss @tailwindcss/postcss autoprefixer` (초기화: `npx tailwindcss init -p`)
+- 스타일: `tailwindcss @tailwindcss/postcss autoprefixer shadcn/ui` (초기화: `npx tailwindcss init -p`, 컴포넌트 설정: `npx shadcn@latest init`)
 - 개발도구: `vite @vitejs/plugin-react typescript`
+- 접근성: `eslint-plugin-jsx-a11y(선택)`
 
 3. ESLint/Prettier
 
 - ESLint는 `eslint.config.js` 기준 사용
 - Prettier 설치: `npm i -D prettier eslint-config-prettier`
-- `.prettierrc` 예시: `{ "singleQuote": true, "semi": true }`
+- `.prettierrc` 예시: `{ "endOfLine": "auto", "tabWidth": 2 }`
+
+  .eslintrc.json (필수 최소 구성)
+
+```json
+{
+  "extends": ["plugin:prettier/recommended"],
+  "plugins": ["import"],
+  "rules": {
+    "prettier/prettier": ["error", { "endOfLine": "auto" }],
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "import/order": [
+      "warn",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index"
+        ],
+        "alphabetize": { "order": "asc", "caseInsensitive": true }
+      }
+    ]
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "moduleDirectory": ["node_modules", "src"]
+      }
+    }
+  }
+}
+```
 
 4. .env.example 추가
 
@@ -48,7 +85,3 @@
 - 기본 헤더 `Accept: application/json` 설정
 
 10. 주석은 한국어로 작성
-
-11. 접근성
-
-- eslint-plugin-jsx-a11y 추가
