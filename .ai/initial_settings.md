@@ -22,8 +22,10 @@
 
   ```json
   {
-    "endOfLine": "auto",
-    "tabWidth": 2
+    "semi": true,
+    "printWidth": 100,
+    "tabWidth": 2,
+    "endOfLine": "lf"
   }
   ```
 
@@ -38,6 +40,36 @@
   ```
 
 - ESLint는 `eslint.config.js`(Flat Config) 기준 사용. 가능하면 **import 순서**도 추가
+  1. React 및 핵심 라이브러리: react, react-dom 등 프레임워크 핵심 패키지
+  2. 서드파티(외부) 라이브러리: react-router-dom, lodash, axios 등 설치된 외부 모듈
+  3. 내부 프로젝트 모듈 (Internal):
+  - 절대 경로로 설정된 내부 컴포넌트나 서비스
+  - 커스텀 훅 (hooks/), 유틸리티 함수 (utils/), API 서비스 등
+  4. 로컬 컴포넌트: 현재 파일과 밀접한 상대 경로의 컴포넌트
+  5. 이미지 및 자산 (Assets): .svg, .png 등 이미지 파일
+  6. 스타일 파일: .css, .scss, .module.css 등
+
+- import/order 예시 코드
+
+  ```js
+  // 1. React 및 핵심 라이브러리
+  import React, { useState, useEffect } from "react";
+
+  // 2. 외부 라이브러리 (External)
+  import { Link } from "react-router-dom";
+  import axios from "axios";
+
+  // 3. 내부 모듈 (Internal/Absolute Path)
+  import Button from "@/components/common/Button";
+  import { formatDate } from "@/utils/date";
+
+  // 4. 로컬/상대 경로 모듈 (Parent/Sibling)
+  import LocalComponent from "./LocalComponent";
+
+  // 5. 스타일 및 자산
+  import logo from "./logo.svg";
+  import "./styles.css";
+  ```
 
 4. .env.example 추가
 
