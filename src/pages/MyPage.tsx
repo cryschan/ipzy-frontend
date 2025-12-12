@@ -1,10 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, LogOut, Trash2, ChevronRight, User, Heart, Crown, Zap, CreditCard, UserCog } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { QUIZ_PATH } from "../constants/navigation";
 
 export default function MyPage() {
   const navigate = useNavigate();
   const { user, savedOutfits, logout, removeOutfit, cancelSubscription } = useAuth();
+
+  const navigateToQuiz = () => {
+    navigate(QUIZ_PATH);
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -193,7 +198,7 @@ export default function MyPage() {
               </div>
               <p className="text-gray-500 mb-4">아직 저장한 코디가 없어요</p>
               <button
-                onClick={() => navigate("/quiz")}
+                onClick={navigateToQuiz}
                 className="text-[#FB5010] font-bold hover:underline"
               >
                 코디 추천받으러 가기
@@ -276,7 +281,7 @@ export default function MyPage() {
 
         {/* New Recommendation CTA */}
         <button
-          onClick={() => navigate("/quiz")}
+          onClick={navigateToQuiz}
           className="w-full bg-[#1a1a1a] text-white py-4 rounded-full font-bold hover:bg-[#333] transition-colors"
         >
           새로운 코디 추천받기
