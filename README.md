@@ -60,11 +60,9 @@ npm run dev
 node scripts/capture-screens.cjs
 ```
 
-## 문서
+## Prettier 연동 방식
 
-- 화면 정의서: `docs/화면정의서.md`
-- API 문서: `docs/api/` 폴더
-- ERD: `docs/ERD.md`
+본 프로젝트는 "ESLint에서 Prettier를 강제"합니다.
 
 ## 라이선스
 
