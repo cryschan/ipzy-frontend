@@ -1,4 +1,5 @@
 import { api } from "../api/api";
+import { AxiosError } from "axios";
 
 // 공통 에러 응답 타입
 export interface ApiError {
@@ -12,6 +13,95 @@ export interface ApiResponse<T> {
   data?: T;
   error?: ApiError;
 }
+
+// 퀴즈 질문 관련 타입
+export interface ApiOption {
+  optionId: number;
+  text: string;
+  value: string;
+  imageUrl: string | null;
+  displayOrder: number;
+}
+
+export interface ApiQuestion {
+  questionId: number;
+  text: string;
+  type: string;
+  required: boolean;
+  displayOrder: number;
+  options: ApiOption[];
+}
+
+// 컴포넌트에서 사용하는 질문 타입
+export interface Question {
+  id: number;
+  question: string;
+  options: {
+    value: string;
+    label: string;
+  }[];
+}
+
+// API 응답을 컴포넌트 형식으로 변환
+const transformQuestions = (apiQuestions: ApiQuestion[]): Question[] => {
+  return apiQuestions
+    .sort((a, b) => a.displayOrder - b.displayOrder)
+    .map((apiQuestion) => ({
+      id: apiQuestion.questionId,
+      question: apiQuestion.text,
+      options: apiQuestion.options
+        .sort((a, b) => a.displayOrder - b.displayOrder)
+        .map((option) => ({
+          value: option.value,
+          label: option.text,
+        })),
+    }));
+};
+
+// 퀴즈 질문 조회 API 응답 타입
+interface ApiQuestionResponse {
+  success: boolean;
+  data?: ApiQuestion[];
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
+/**
+ * 퀴즈 질문을 가져옵니다.
+ * @param quizId 퀴즈 ID
+ * @returns 질문 목록
+ */
+export const fetchQuestions = async (quizId: number): Promise<Question[]> => {
+  try {
+    const { data } = await api.get<ApiQuestionResponse>(
+      `/api/quizzes/${quizId}/questions`
+    );
+
+    // 에러 필드가 있거나 success가 false이면 에러 처리
+    if (data.error || !data.success) {
+      const error = data.error;
+      if (error) {
+        throw new Error(`${error.code}: ${error.message}`);
+      }
+      throw new Error("퀴즈를 불러오는데 실패했습니다");
+    }
+
+    if (!data.data) {
+      throw new Error("퀴즈 데이터 형식이 올바르지 않습니다");
+    }
+
+    return transformQuestions(data.data);
+  } catch (error) {
+    // axios 에러 처리
+    if (error instanceof AxiosError && error.response) {
+      const status = error.response.status;
+      throw new Error(`HTTP ${status}: 퀴즈를 불러오는데 실패했습니다`);
+    }
+    throw error;
+  }
+};
 
 // 세션 시작 응답 타입
 export interface QuizSession {
@@ -54,9 +144,9 @@ export const startQuizSession = async (
     sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data.data));
 
     return data.data;
-  } catch (error: any) {
+  } catch (error) {
     // axios 에러 처리
-    if (error.response) {
+    if (error instanceof AxiosError && error.response) {
       const status = error.response.status;
       throw new Error(`HTTP ${status}: 세션을 시작하는데 실패했습니다`);
     }
@@ -85,55 +175,6 @@ export const getStoredSession = (): QuizSession | null => {
  */
 export const clearStoredSession = (): void => {
   sessionStorage.removeItem(SESSION_STORAGE_KEY);
-};
-
-// 진행 상태 응답 타입
-export interface QuizProgress {
-  sessionId: number;
-  totalQuestions: number;
-  answeredCount: number;
-  completed: boolean;
-  answers: Array<{
-    questionId: number;
-    optionValue: string;
-  }>;
-}
-
-/**
- * 퀴즈 세션의 진행 상태를 조회합니다.
- * @param sessionId 세션 ID
- * @returns 진행 상태 정보
- */
-export const getQuizProgress = async (
-  sessionId: number
-): Promise<QuizProgress> => {
-  try {
-    const { data } = await api.get<ApiResponse<QuizProgress>>(
-      `/api/quiz-sessions/${sessionId}/progress`
-    );
-
-    // 에러 필드가 있거나 success가 false이면 에러 처리
-    if (data.error || !data.success) {
-      const error = data.error;
-      if (error) {
-        throw new Error(`${error.code}: ${error.message}`);
-      }
-      throw new Error("진행 상태를 조회하는데 실패했습니다");
-    }
-
-    if (!data.data) {
-      throw new Error("진행 상태 데이터 형식이 올바르지 않습니다");
-    }
-
-    return data.data;
-  } catch (error: any) {
-    // axios 에러 처리
-    if (error.response) {
-      const status = error.response.status;
-      throw new Error(`HTTP ${status}: 진행 상태를 조회하는데 실패했습니다`);
-    }
-    throw error;
-  }
 };
 
 // 답변 저장 요청 타입
@@ -185,9 +226,9 @@ export const saveQuizAnswer = async (
     }
 
     return data.data;
-  } catch (error: any) {
+  } catch (error) {
     // axios 에러 처리
-    if (error.response) {
+    if (error instanceof AxiosError && error.response) {
       const status = error.response.status;
       throw new Error(`HTTP ${status}: 답변을 저장하는데 실패했습니다`);
     }
@@ -242,9 +283,9 @@ export const completeQuizSession = async (
     }
 
     return data.data;
-  } catch (error: any) {
+  } catch (error) {
     // axios 에러 처리
-    if (error.response) {
+    if (error instanceof AxiosError && error.response) {
       const status = error.response.status;
       throw new Error(`HTTP ${status}: 퀴즈 세션을 완료하는데 실패했습니다`);
     }

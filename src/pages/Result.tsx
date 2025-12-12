@@ -1,6 +1,6 @@
 import { ArrowRight, RotateCcw, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { QUIZ_PATH } from "../utils/navigation";
+import { QUIZ_PATH } from "../constants/navigation";
 
 // 모의 데이터
 const mockResult = {

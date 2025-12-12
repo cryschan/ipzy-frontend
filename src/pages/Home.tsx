@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import Logo from "../components/Logo";
 import { redirectToKakaoLogin } from "../api/auth";
 import { QUIZ_EXAMPLES } from "../constants/quizExamples";
-import { QUIZ_PATH } from "../utils/navigation";
+import { QUIZ_PATH } from "../constants/navigation";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, LogOut, Trash2, ChevronRight, User, Heart, Crown, Zap, CreditCard, UserCog } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { QUIZ_PATH } from "../utils/navigation";
+import { QUIZ_PATH } from "../constants/navigation";
 
 export default function MyPage() {
   const navigate = useNavigate();

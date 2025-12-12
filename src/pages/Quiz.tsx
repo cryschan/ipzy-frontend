@@ -7,97 +7,11 @@ import {
   saveQuizAnswer,
   completeQuizSession,
   clearStoredSession,
+  fetchQuestions,
+  type Question,
 } from "../utils/quizApi";
-import { api } from "../api/api";
 
 const QUIZ_ID = 1; // 기본 퀴즈 ID
-
-// API 응답 타입
-interface ApiOption {
-  optionId: number;
-  text: string;
-  value: string;
-  imageUrl: string | null;
-  displayOrder: number;
-}
-
-interface ApiQuestion {
-  questionId: number;
-  text: string;
-  type: string;
-  required: boolean;
-  displayOrder: number;
-  options: ApiOption[];
-}
-
-// 컴포넌트에서 사용하는 타입
-interface Question {
-  id: number;
-  question: string;
-  options: {
-    value: string;
-    label: string;
-  }[];
-}
-
-// API 응답을 컴포넌트 형식으로 변환
-const transformQuestions = (apiQuestions: ApiQuestion[]): Question[] => {
-  return apiQuestions
-    .sort((a, b) => a.displayOrder - b.displayOrder)
-    .map((apiQuestion) => ({
-      id: apiQuestion.questionId,
-      question: apiQuestion.text,
-      options: apiQuestion.options
-        .sort((a, b) => a.displayOrder - b.displayOrder)
-        .map((option) => ({
-          value: option.value,
-          label: option.text,
-        })),
-    }));
-};
-
-// startQuizSession과 getStoredSession은 utils/quizApi에서 import
-
-// API 응답 타입 (로컬)
-interface ApiQuestionResponse {
-  success: boolean;
-  data?: ApiQuestion[];
-  error?: {
-    code: string;
-    message: string;
-  };
-}
-
-// 퀴즈 질문 가져오기
-const fetchQuestions = async (quizId: number): Promise<Question[]> => {
-  try {
-    const { data } = await api.get<ApiQuestionResponse>(
-      `/api/quizzes/${quizId}/questions`
-    );
-
-    // 에러 필드가 있거나 success가 false이면 에러 처리
-    if (data.error || !data.success) {
-      const error = data.error;
-      if (error) {
-        throw new Error(`${error.code}: ${error.message}`);
-      }
-      throw new Error("퀴즈를 불러오는데 실패했습니다");
-    }
-
-    if (!data.data) {
-      throw new Error("퀴즈 데이터 형식이 올바르지 않습니다");
-    }
-
-    return transformQuestions(data.data);
-  } catch (error: any) {
-    // axios 에러 처리
-    if (error.response) {
-      const status = error.response.status;
-      throw new Error(`HTTP ${status}: 퀴즈를 불러오는데 실패했습니다`);
-    }
-    throw error;
-  }
-};
 
 export default function Quiz() {
   const navigate = useNavigate();
@@ -273,8 +187,25 @@ export default function Quiz() {
     }
   };
 
-  // 로딩 중이거나 질문이 없을 때
-  if (isLoading || questions.length === 0) {
+  // 에러 발생 시 (질문 0개인 실패 케이스 포함)
+  if (error) {
+    return (
+      <main className="min-h-screen bg-white text-[#1a1a1a] flex items-center justify-center">
+        <div className="text-center px-6">
+          <div className="text-lg text-red-600 mb-4">{error}</div>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-[#FB5010] text-white rounded-lg hover:bg-[#FB5010]/90 transition-colors"
+          >
+            다시 시도
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  // 로딩 중일 때만 로딩 UI
+  if (isLoading) {
     return (
       <main className="min-h-screen bg-white text-[#1a1a1a] flex items-center justify-center">
         <div className="text-center">
@@ -284,12 +215,14 @@ export default function Quiz() {
     );
   }
 
-  // 에러 발생 시
-  if (error) {
+  // 로딩은 끝났는데 질문이 없다면(비정상/빈 데이터) 별도 처리
+  if (questions.length === 0) {
     return (
       <main className="min-h-screen bg-white text-[#1a1a1a] flex items-center justify-center">
         <div className="text-center px-6">
-          <div className="text-lg text-red-600 mb-4">{error}</div>
+          <div className="text-lg text-gray-600 mb-4">
+            표시할 퀴즈가 없습니다.
+          </div>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-[#FB5010] text-white rounded-lg hover:bg-[#FB5010]/90 transition-colors"
