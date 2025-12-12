@@ -13,6 +13,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "preview": "vite preview"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.17",
     "@tanstack/react-query": "^5.90.12",

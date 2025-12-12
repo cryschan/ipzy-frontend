@@ -1,4 +1,3 @@
 #!/bin/sh
-
-npx --no-install lint-staged
-
+set -eu
+npm run -s lint:staged

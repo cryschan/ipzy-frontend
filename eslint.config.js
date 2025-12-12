@@ -49,7 +49,6 @@ export default defineConfig([
             // 6) 스타일 파일
             { pattern: "**/*.{css,scss}", group: "index", position: "after" },
           ],
-          pathGroupsExcludedImportTypes: ["react", "react-dom"],
           "newlines-between": "always",
           alphabetize: { order: "asc", caseInsensitive: true },
         },

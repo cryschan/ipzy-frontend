@@ -25,18 +25,17 @@
     "semi": true,
     "printWidth": 100,
     "tabWidth": 2,
-    "endOfLine": "lf"
+    "endOfLine": "auto"
   }
   ```
 
 - `.prettierignore` 예시
 
-  ```
+  ```text
   node_modules/
   build/
   dist/
   *.min.js
-  .github/
   ```
 
 - ESLint는 `eslint.config.js`(Flat Config) 기준 사용. 가능하면 **import 순서**도 추가
