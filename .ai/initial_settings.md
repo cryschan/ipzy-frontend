@@ -17,44 +17,31 @@
 
 3. ESLint/Prettier
 
-- ESLint는 `eslint.config.js` 기준 사용
-- Prettier 설치: `npm i -D prettier eslint-config-prettier`
-- `.prettierrc` 예시: `{ "endOfLine": "auto", "tabWidth": 2 `
-- eslint.config.js에 아래 내용도 추가
+- ESLint, Prettier devDependency로 설치
+- `.prettierrc` 예시
+
+  ```json
+  {
+    "endOfLine": "auto",
+    "tabWidth": 2
+  }
   ```
-    plugins: {
-      import: eslintPluginImport,
-    },
-    rules: {
-      "prettier/prettier": ["error", { endOfLine: "auto" }],
-      "no-console": ["warn", { allow: ["warn", "error"] }],
-      "import/order": [
-        "warn",
-        {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            "parent",
-            "sibling",
-            "index",
-          ],
-          alphabetize: { order: "asc", caseInsensitive: true },
-        },
-      ],
-    },
-    settings: {
-      "import/resolver": {
-        node: {
-          moduleDirectory: ["node_modules", "src"],
-        },
-      },
-    },
+
+- `.prettierignore` 예시
+
   ```
+  node_modules/
+  build/
+  dist/
+  *.min.js
+  .github/
+  ```
+
+- ESLint는 `eslint.config.js`(Flat Config) 기준 사용. 가능하면 **import 순서**도 추가
 
 4. .env.example 추가
 
-- `.env.example`에 필요한 환경변수 추가
+- `.env.example`에 필요한 환경변수 명시
 - `.env.example` 외에 다른 `.env` 파일들은 `.gitignore`에 추가
 
 5. README 정리
