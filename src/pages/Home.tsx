@@ -3,16 +3,17 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../components/Logo";
-import { navigateToQuiz } from "../utils/quizApi";
 import { redirectToKakaoLogin } from "../api/auth";
+import { QUIZ_EXAMPLES } from "../constants/quizExamples";
+import { QUIZ_PATH } from "../utils/navigation";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
-  const handleStart = () => {
-    navigateToQuiz(navigate);
+  const navigateToQuiz = () => {
+    navigate(QUIZ_PATH);
   };
   const handleLogin = async () => {
     // 로그인 후 돌아올 경로 저장 (현재 경로)
@@ -101,7 +102,7 @@ export default function Home() {
             )}
             <button
               onClick={() => {
-                handleStart();
+                navigateToQuiz();
                 setMenuOpen(false);
               }}
               className="text-2xl font-bold"
@@ -117,7 +118,7 @@ export default function Home() {
             </a>
             <button
               onClick={() => {
-                handleStart();
+                navigateToQuiz();
                 setMenuOpen(false);
               }}
               className="bg-[#FB5010] text-white px-8 py-3 text-lg font-medium rounded-full"
@@ -149,7 +150,7 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
-                  onClick={handleStart}
+                  onClick={navigateToQuiz}
                   className="group flex items-center justify-center gap-3 bg-[#FB5010] text-white px-8 py-4 font-bold hover:bg-[#E04600] transition-colors rounded-full"
                 >
                   <span>코디 추천 받기</span>
@@ -242,20 +243,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                num: "01",
-                q: "어디 가요?",
-                opts: "학교 · 회사 · 데이트 · 외출",
-              },
-              {
-                num: "02",
-                q: "어떻게 보이고 싶어요?",
-                opts: "깔끔 · 편하게 · 멋있게",
-              },
-              { num: "03", q: "체형 고민?", opts: "없음 · 배 · 마른편 · 키" },
-              { num: "04", q: "예산은?", opts: "10만 · 20만 · 30만 · 무관" },
-            ].map((item, i) => (
+            {QUIZ_EXAMPLES.map((item, i) => (
               <div
                 key={i}
                 className="group border border-white/10 p-6 hover:border-[#FB5010] transition-colors"
@@ -271,7 +259,7 @@ export default function Home() {
 
           <div className="mt-16 text-center">
             <button
-              onClick={handleStart}
+              onClick={navigateToQuiz}
               className="group inline-flex items-center gap-3 bg-[#FB5010] text-white px-10 py-5 font-bold text-lg hover:bg-[#E04600] transition-colors rounded-full"
             >
               <span>시작하기</span>

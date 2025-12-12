@@ -8,10 +8,9 @@ import {
   completeQuizSession,
   clearStoredSession,
 } from "../utils/quizApi";
+import { api } from "../api/api";
 
 const QUIZ_ID = 1; // 기본 퀴즈 ID
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 // API 응답 타입
 interface ApiOption {
@@ -71,26 +70,33 @@ interface ApiQuestionResponse {
 
 // 퀴즈 질문 가져오기
 const fetchQuestions = async (quizId: number): Promise<Question[]> => {
-  const response = await fetch(
-    `${API_BASE_URL}/api/quizzes/${quizId}/questions`
-  );
+  try {
+    const { data } = await api.get<ApiQuestionResponse>(
+      `/api/quizzes/${quizId}/questions`
+    );
 
-  const data: ApiQuestionResponse = await response.json();
-
-  // 에러 필드가 있거나 success가 false이면 에러 처리
-  if (data.error || !data.success) {
-    const error = data.error;
-    if (error) {
-      throw new Error(`${error.code}: ${error.message}`);
+    // 에러 필드가 있거나 success가 false이면 에러 처리
+    if (data.error || !data.success) {
+      const error = data.error;
+      if (error) {
+        throw new Error(`${error.code}: ${error.message}`);
+      }
+      throw new Error("퀴즈를 불러오는데 실패했습니다");
     }
-    throw new Error("퀴즈를 불러오는데 실패했습니다");
-  }
 
-  if (!data.data) {
-    throw new Error("퀴즈 데이터 형식이 올바르지 않습니다");
-  }
+    if (!data.data) {
+      throw new Error("퀴즈 데이터 형식이 올바르지 않습니다");
+    }
 
-  return transformQuestions(data.data);
+    return transformQuestions(data.data);
+  } catch (error: any) {
+    // axios 에러 처리
+    if (error.response) {
+      const status = error.response.status;
+      throw new Error(`HTTP ${status}: 퀴즈를 불러오는데 실패했습니다`);
+    }
+    throw error;
+  }
 };
 
 export default function Quiz() {

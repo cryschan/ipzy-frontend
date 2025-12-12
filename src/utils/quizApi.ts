@@ -1,5 +1,4 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+import { api } from "../api/api";
 
 // 공통 에러 응답 타입
 export interface ApiError {
@@ -33,36 +32,36 @@ const SESSION_STORAGE_KEY = "quiz_session";
 export const startQuizSession = async (
   quizId: number = 1
 ): Promise<QuizSession> => {
-  const response = await fetch(
-    `${API_BASE_URL}/api/quizzes/${quizId}/sessions`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include", // 쿠키 포함 (필요한 경우)
+  try {
+    const { data } = await api.post<ApiResponse<QuizSession>>(
+      `/api/quizzes/${quizId}/sessions`
+    );
+
+    // 에러 필드가 있거나 success가 false이면 에러 처리
+    if (data.error || !data.success) {
+      const error = data.error;
+      if (error) {
+        throw new Error(`${error.code}: ${error.message}`);
+      }
+      throw new Error("세션을 시작하는데 실패했습니다");
     }
-  );
 
-  const data: ApiResponse<QuizSession> = await response.json();
-
-  // 에러 필드가 있거나 success가 false이면 에러 처리
-  if (data.error || !data.success) {
-    const error = data.error;
-    if (error) {
-      throw new Error(`${error.code}: ${error.message}`);
+    if (!data.data) {
+      throw new Error("세션 데이터 형식이 올바르지 않습니다");
     }
-    throw new Error("세션을 시작하는데 실패했습니다");
+
+    // 세션 정보를 sessionStorage에 저장
+    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data.data));
+
+    return data.data;
+  } catch (error: any) {
+    // axios 에러 처리
+    if (error.response) {
+      const status = error.response.status;
+      throw new Error(`HTTP ${status}: 세션을 시작하는데 실패했습니다`);
+    }
+    throw error;
   }
-
-  if (!data.data) {
-    throw new Error("세션 데이터 형식이 올바르지 않습니다");
-  }
-
-  // 세션 정보를 sessionStorage에 저장
-  sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data.data));
-
-  return data.data;
 };
 
 /**
@@ -108,29 +107,33 @@ export interface QuizProgress {
 export const getQuizProgress = async (
   sessionId: number
 ): Promise<QuizProgress> => {
-  const response = await fetch(
-    `${API_BASE_URL}/api/quiz-sessions/${sessionId}/progress`,
-    {
-      credentials: "include",
+  try {
+    const { data } = await api.get<ApiResponse<QuizProgress>>(
+      `/api/quiz-sessions/${sessionId}/progress`
+    );
+
+    // 에러 필드가 있거나 success가 false이면 에러 처리
+    if (data.error || !data.success) {
+      const error = data.error;
+      if (error) {
+        throw new Error(`${error.code}: ${error.message}`);
+      }
+      throw new Error("진행 상태를 조회하는데 실패했습니다");
     }
-  );
 
-  const data: ApiResponse<QuizProgress> = await response.json();
-
-  // 에러 필드가 있거나 success가 false이면 에러 처리
-  if (data.error || !data.success) {
-    const error = data.error;
-    if (error) {
-      throw new Error(`${error.code}: ${error.message}`);
+    if (!data.data) {
+      throw new Error("진행 상태 데이터 형식이 올바르지 않습니다");
     }
-    throw new Error("진행 상태를 조회하는데 실패했습니다");
-  }
 
-  if (!data.data) {
-    throw new Error("진행 상태 데이터 형식이 올바르지 않습니다");
+    return data.data;
+  } catch (error: any) {
+    // axios 에러 처리
+    if (error.response) {
+      const status = error.response.status;
+      throw new Error(`HTTP ${status}: 진행 상태를 조회하는데 실패했습니다`);
+    }
+    throw error;
   }
-
-  return data.data;
 };
 
 // 답변 저장 요청 타입
@@ -162,34 +165,34 @@ export const saveQuizAnswer = async (
     selectedOptions,
   };
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/quiz-sessions/${sessionId}/answers`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(requestBody),
+  try {
+    const { data } = await api.post<ApiResponse<SaveAnswerResponse>>(
+      `/api/quiz-sessions/${sessionId}/answers`,
+      requestBody
+    );
+
+    // 에러 필드가 있거나 success가 false이면 에러 처리
+    if (data.error || !data.success) {
+      const error = data.error;
+      if (error) {
+        throw new Error(`${error.code}: ${error.message}`);
+      }
+      throw new Error("답변을 저장하는데 실패했습니다");
     }
-  );
 
-  const data: ApiResponse<SaveAnswerResponse> = await response.json();
-
-  // 에러 필드가 있거나 success가 false이면 에러 처리
-  if (data.error || !data.success) {
-    const error = data.error;
-    if (error) {
-      throw new Error(`${error.code}: ${error.message}`);
+    if (!data.data) {
+      throw new Error("답변 저장 응답 데이터가 없습니다");
     }
-    throw new Error("답변을 저장하는데 실패했습니다");
-  }
 
-  if (!data.data) {
-    throw new Error("답변 저장 응답 데이터가 없습니다");
+    return data.data;
+  } catch (error: any) {
+    // axios 에러 처리
+    if (error.response) {
+      const status = error.response.status;
+      throw new Error(`HTTP ${status}: 답변을 저장하는데 실패했습니다`);
+    }
+    throw error;
   }
-
-  return data.data;
 };
 
 // 퀴즈 세션 완료 응답 타입
@@ -207,50 +210,44 @@ export interface CompleteSessionResponse {
 export const completeQuizSession = async (
   sessionId: number
 ): Promise<CompleteSessionResponse> => {
-  const response = await fetch(
-    `${API_BASE_URL}/api/quiz-sessions/${sessionId}/complete`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
+  try {
+    const { data } = await api.post<ApiResponse<CompleteSessionResponse>>(
+      `/api/quiz-sessions/${sessionId}/complete`
+    );
+
+    // 에러 필드가 있거나 success가 false이면 에러 처리
+    if (data.error || !data.success) {
+      const error = data.error;
+      if (error) {
+        throw new Error(`${error.code}: ${error.message}`);
+      }
+      throw new Error("퀴즈 세션을 완료하는데 실패했습니다");
     }
-  );
 
-  const data: ApiResponse<CompleteSessionResponse> = await response.json();
-
-  // 에러 필드가 있거나 success가 false이면 에러 처리
-  if (data.error || !data.success) {
-    const error = data.error;
-    if (error) {
-      throw new Error(`${error.code}: ${error.message}`);
+    if (!data.data) {
+      throw new Error("완료 응답 데이터가 없습니다");
     }
-    throw new Error("퀴즈 세션을 완료하는데 실패했습니다");
+
+    // 세션 정보 업데이트 (completed 상태 반영)
+    const session = getStoredSession();
+    if (session) {
+      const updatedSession: QuizSession = {
+        ...session,
+        completed: true,
+      };
+      sessionStorage.setItem(
+        SESSION_STORAGE_KEY,
+        JSON.stringify(updatedSession)
+      );
+    }
+
+    return data.data;
+  } catch (error: any) {
+    // axios 에러 처리
+    if (error.response) {
+      const status = error.response.status;
+      throw new Error(`HTTP ${status}: 퀴즈 세션을 완료하는데 실패했습니다`);
+    }
+    throw error;
   }
-
-  if (!data.data) {
-    throw new Error("완료 응답 데이터가 없습니다");
-  }
-
-  // 세션 정보 업데이트 (completed 상태 반영)
-  const session = getStoredSession();
-  if (session) {
-    const updatedSession: QuizSession = {
-      ...session,
-      completed: true,
-    };
-    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedSession));
-  }
-
-  return data.data;
-};
-
-/**
- * 퀴즈 페이지로 이동합니다.
- * 세션 생성은 Quiz 컴포넌트에서 처리합니다.
- * @param navigate 네비게이션 함수
- */
-export const navigateToQuiz = (navigate: (path: string) => void): void => {
-  navigate("/quiz");
 };

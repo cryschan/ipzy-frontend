@@ -1,6 +1,6 @@
 import { ArrowRight, RotateCcw, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { navigateToQuiz } from "../utils/quizApi";
+import { QUIZ_PATH } from "../utils/navigation";
 
 // 모의 데이터
 const mockResult = {
@@ -30,8 +30,8 @@ const mockResult = {
 export default function Result() {
   const navigate = useNavigate();
 
-  const handleRetry = () => {
-    navigateToQuiz(navigate);
+  const navigateToQuiz = () => {
+    navigate(QUIZ_PATH);
   };
 
   const handleHome = () => {
@@ -55,7 +55,7 @@ export default function Result() {
             뭐입지
           </button>
           <button
-            onClick={handleRetry}
+            onClick={navigateToQuiz}
             className="flex items-center gap-2 text-gray-500 hover:text-[#1a1a1a] transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
@@ -149,7 +149,7 @@ export default function Result() {
                 <span>무신사에서 구매하기</span>
               </button>
               <button
-                onClick={handleRetry}
+                onClick={navigateToQuiz}
                 className="flex-1 flex items-center justify-center gap-2 border-2 border-[#1a1a1a] px-6 py-4 font-bold hover:bg-[#1a1a1a] hover:text-white transition-colors rounded-full"
               >
                 <RotateCcw className="w-5 h-5" />
@@ -181,7 +181,7 @@ export default function Result() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl font-bold mb-4">다른 스타일도 궁금하다면?</h2>
           <button
-            onClick={handleRetry}
+            onClick={navigateToQuiz}
             className="group inline-flex items-center gap-3 bg-[#FB5010] text-white px-8 py-4 font-bold hover:bg-[#E04600] transition-colors rounded-full"
           >
             <span>새로운 코디 추천받기</span>
