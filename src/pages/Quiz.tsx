@@ -1,16 +1,15 @@
-import { ArrowLeft } from "lucide-react";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { ArrowLeft } from "lucide-react";
 import {
-  getStoredSession,
-  startQuizSession,
-  saveQuizAnswer,
-  completeQuizSession,
   clearStoredSession,
+  completeQuizSession,
   fetchQuestions,
   getDefaultQuizId,
+  getStoredSession,
   type Question,
+  saveQuizAnswer,
+  startQuizSession,
 } from "../utils/quizApi";
 
 export default function Quiz() {
