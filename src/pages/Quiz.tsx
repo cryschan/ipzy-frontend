@@ -1,6 +1,7 @@
+import { ArrowLeft } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+
 import {
   getStoredSession,
   startQuizSession,
@@ -8,10 +9,9 @@ import {
   completeQuizSession,
   clearStoredSession,
   fetchQuestions,
+  getDefaultQuizId,
   type Question,
 } from "../utils/quizApi";
-
-const QUIZ_ID = 1; // 기본 퀴즈 ID
 
 export default function Quiz() {
   const navigate = useNavigate();
@@ -37,26 +37,23 @@ export default function Quiz() {
         setIsLoading(true);
         setError(null);
 
+        // displayOrder가 1인 퀴즈 ID 가져오기
+        const quizId = await getDefaultQuizId();
+
         // 질문 로드 (세션 생성 전에 먼저 로드)
-        const loadedQuestions = await fetchQuestions(QUIZ_ID);
+        const loadedQuestions = await fetchQuestions(quizId);
         setQuestions(loadedQuestions);
 
         // 기존 세션이 없거나 다른 퀴즈의 세션이거나 완료된 세션이면 새로 시작
         const existingSession = getStoredSession();
-        if (
-          !existingSession ||
-          existingSession.quizId !== QUIZ_ID ||
-          existingSession.completed
-        ) {
-          await startQuizSession(QUIZ_ID);
+        if (!existingSession || existingSession.quizId !== quizId || existingSession.completed) {
+          await startQuizSession(quizId);
         }
 
         // 중간에 빠져나가면 복구하지 않고 처음부터 시작
         // 진행 상태 복구 로직 제거
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "퀴즈를 불러오는데 실패했습니다"
-        );
+        setError(err instanceof Error ? err.message : "퀴즈를 불러오는데 실패했습니다");
       } finally {
         setIsLoading(false);
         setIsRestored(true);
@@ -220,9 +217,7 @@ export default function Quiz() {
     return (
       <main className="min-h-screen bg-white text-[#1a1a1a] flex items-center justify-center">
         <div className="text-center px-6">
-          <div className="text-lg text-gray-600 mb-4">
-            표시할 퀴즈가 없습니다.
-          </div>
+          <div className="text-lg text-gray-600 mb-4">표시할 퀴즈가 없습니다.</div>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-[#FB5010] text-white rounded-lg hover:bg-[#FB5010]/90 transition-colors"
@@ -237,9 +232,7 @@ export default function Quiz() {
   const currentQuestion = questions[currentStep];
   // 현재 질문 위치 기준으로 진행률 계산 (뒤로 가면 progress 바도 줄어듦)
   // 현재 질문까지 답변한 질문 수만 카운트
-  const answeredCount = questions
-    .slice(0, currentStep)
-    .filter((q) => answers[q.id]).length;
+  const answeredCount = questions.slice(0, currentStep).filter((q) => answers[q.id]).length;
   const progress = (answeredCount / questions.length) * 100;
   const isSelected = answers[currentQuestion.id];
 
@@ -249,10 +242,7 @@ export default function Quiz() {
   }
 
   return (
-    <main
-      className="min-h-screen bg-white text-[#1a1a1a] flex flex-col"
-      onKeyDown={handleKeyDown}
-    >
+    <main className="min-h-screen bg-white text-[#1a1a1a] flex flex-col" onKeyDown={handleKeyDown}>
       {/* Header */}
       <header className="px-6 py-4 border-b border-gray-100">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
@@ -295,10 +285,7 @@ export default function Quiz() {
           </div>
 
           {/* Question */}
-          <h1
-            className="text-4xl md:text-5xl font-black mb-12"
-            id="question-title"
-          >
+          <h1 className="text-4xl md:text-5xl font-black mb-12" id="question-title">
             {currentQuestion.question}
           </h1>
 
@@ -317,9 +304,7 @@ export default function Quiz() {
                   answers[currentQuestion.id] === option.value
                     ? "border-[#FB5010] bg-[#FB5010]/5"
                     : `border-gray-200 ${
-                        isAdvancing
-                          ? "opacity-60 cursor-not-allowed"
-                          : "hover:border-gray-400"
+                        isAdvancing ? "opacity-60 cursor-not-allowed" : "hover:border-gray-400"
                       }`
                 }`}
                 role="radio"

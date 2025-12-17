@@ -1,5 +1,17 @@
-import { api } from "../api/api";
 import { AxiosError } from "axios";
+
+import { api } from "../api/api";
+
+// Axios 에러 타입 가드
+const isAxiosError = (
+  error: unknown
+): error is AxiosError & { response: NonNullable<AxiosError["response"]> } => {
+  if (error instanceof AxiosError) {
+    const axiosError = error as AxiosError;
+    return axiosError.response !== undefined;
+  }
+  return false;
+};
 
 // 공통 에러 응답 타입
 export interface ApiError {
@@ -58,6 +70,24 @@ const transformQuestions = (apiQuestions: ApiQuestion[]): Question[] => {
     }));
 };
 
+// 퀴즈 목록 관련 타입
+export interface QuizMetadata {
+  quizId: number;
+  title: string;
+  description: string;
+  displayOrder: number;
+}
+
+// 퀴즈 목록 조회 API 응답 타입
+interface ApiQuizListResponse {
+  success: boolean;
+  data?: QuizMetadata[];
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
 // 퀴즈 질문 조회 API 응답 타입
 interface ApiQuestionResponse {
   success: boolean;
@@ -69,15 +99,62 @@ interface ApiQuestionResponse {
 }
 
 /**
+ * 활성화된 퀴즈 목록을 조회합니다.
+ * @returns 퀴즈 목록 (displayOrder 오름차순 정렬)
+ */
+export const fetchQuizList = async (): Promise<QuizMetadata[]> => {
+  try {
+    const { data } = await api.get<ApiQuizListResponse>("/api/quizzes");
+
+    // 에러 필드가 있거나 success가 false이면 에러 처리
+    if (data.error || !data.success) {
+      const error = data.error;
+      if (error) {
+        throw new Error(`${error.code}: ${error.message}`);
+      }
+      throw new Error("퀴즈 목록을 불러오는데 실패했습니다");
+    }
+
+    if (!data.data) {
+      throw new Error("퀴즈 목록 데이터 형식이 올바르지 않습니다");
+    }
+
+    // displayOrder 오름차순으로 정렬 (백엔드에서 이미 정렬되어 있지만 안전을 위해)
+    return data.data.sort((a: QuizMetadata, b: QuizMetadata) => a.displayOrder - b.displayOrder);
+  } catch (error: unknown) {
+    // axios 에러 처리
+    if (isAxiosError(error)) {
+      const status = error.response.status;
+      throw new Error(`HTTP ${status}: 퀴즈 목록을 불러오는데 실패했습니다`);
+    }
+    throw error;
+  }
+};
+
+/**
+ * displayOrder가 1인 퀴즈의 ID를 가져옵니다.
+ * @returns 퀴즈 ID
+ * @throws displayOrder가 1인 퀴즈가 없을 경우 에러
+ */
+export const getDefaultQuizId = async (): Promise<number> => {
+  const quizList = await fetchQuizList();
+  const defaultQuiz = quizList.find((quiz) => quiz.displayOrder === 1);
+
+  if (!defaultQuiz) {
+    throw new Error("displayOrder가 1인 퀴즈를 찾을 수 없습니다");
+  }
+
+  return defaultQuiz.quizId;
+};
+
+/**
  * 퀴즈 질문을 가져옵니다.
  * @param quizId 퀴즈 ID
  * @returns 질문 목록
  */
 export const fetchQuestions = async (quizId: number): Promise<Question[]> => {
   try {
-    const { data } = await api.get<ApiQuestionResponse>(
-      `/api/quizzes/${quizId}/questions`
-    );
+    const { data } = await api.get<ApiQuestionResponse>(`/api/quizzes/${quizId}/questions`);
 
     // 에러 필드가 있거나 success가 false이면 에러 처리
     if (data.error || !data.success) {
@@ -93,9 +170,9 @@ export const fetchQuestions = async (quizId: number): Promise<Question[]> => {
     }
 
     return transformQuestions(data.data);
-  } catch (error) {
+  } catch (error: unknown) {
     // axios 에러 처리
-    if (error instanceof AxiosError && error.response) {
+    if (isAxiosError(error)) {
       const status = error.response.status;
       throw new Error(`HTTP ${status}: 퀴즈를 불러오는데 실패했습니다`);
     }
@@ -116,16 +193,12 @@ const SESSION_STORAGE_KEY = "quiz_session";
 
 /**
  * 퀴즈 세션을 시작합니다.
- * @param quizId 퀴즈 ID (기본값: 1)
+ * @param quizId 퀴즈 ID
  * @returns 세션 정보
  */
-export const startQuizSession = async (
-  quizId: number = 1
-): Promise<QuizSession> => {
+export const startQuizSession = async (quizId: number): Promise<QuizSession> => {
   try {
-    const { data } = await api.post<ApiResponse<QuizSession>>(
-      `/api/quizzes/${quizId}/sessions`
-    );
+    const { data } = await api.post<ApiResponse<QuizSession>>(`/api/quizzes/${quizId}/sessions`);
 
     // 에러 필드가 있거나 success가 false이면 에러 처리
     if (data.error || !data.success) {
@@ -144,9 +217,9 @@ export const startQuizSession = async (
     sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data.data));
 
     return data.data;
-  } catch (error) {
+  } catch (error: unknown) {
     // axios 에러 처리
-    if (error instanceof AxiosError && error.response) {
+    if (isAxiosError(error)) {
       const status = error.response.status;
       throw new Error(`HTTP ${status}: 세션을 시작하는데 실패했습니다`);
     }
@@ -226,9 +299,9 @@ export const saveQuizAnswer = async (
     }
 
     return data.data;
-  } catch (error) {
+  } catch (error: unknown) {
     // axios 에러 처리
-    if (error instanceof AxiosError && error.response) {
+    if (isAxiosError(error)) {
       const status = error.response.status;
       throw new Error(`HTTP ${status}: 답변을 저장하는데 실패했습니다`);
     }
@@ -248,9 +321,7 @@ export interface CompleteSessionResponse {
  * @param sessionId 세션 ID
  * @returns 완료된 세션 정보
  */
-export const completeQuizSession = async (
-  sessionId: number
-): Promise<CompleteSessionResponse> => {
+export const completeQuizSession = async (sessionId: number): Promise<CompleteSessionResponse> => {
   try {
     const { data } = await api.post<ApiResponse<CompleteSessionResponse>>(
       `/api/quiz-sessions/${sessionId}/complete`
@@ -276,16 +347,13 @@ export const completeQuizSession = async (
         ...session,
         completed: true,
       };
-      sessionStorage.setItem(
-        SESSION_STORAGE_KEY,
-        JSON.stringify(updatedSession)
-      );
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedSession));
     }
 
     return data.data;
-  } catch (error) {
+  } catch (error: unknown) {
     // axios 에러 처리
-    if (error instanceof AxiosError && error.response) {
+    if (isAxiosError(error)) {
       const status = error.response.status;
       throw new Error(`HTTP ${status}: 퀴즈 세션을 완료하는데 실패했습니다`);
     }
