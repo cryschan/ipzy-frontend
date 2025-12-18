@@ -1,6 +1,7 @@
+import { Lock, Eye, EyeOff } from "lucide-react";
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock, Eye, EyeOff } from "lucide-react";
+
 import { useAuth } from "../../context/AuthContext";
 
 export default function AdminLogin() {
@@ -23,11 +24,11 @@ export default function AdminLogin() {
     isSubmitting.current = true;
 
     try {
-      const success = await adminLogin(email, password);
-      if (success) {
+      const result = await adminLogin(email, password);
+      if (result.success) {
         navigate("/admin/dashboard", { replace: true });
       } else {
-        setError("관리자 계정 정보가 올바르지 않습니다.");
+        setError(result.errorMessage ?? "로그인에 실패했습니다.");
       }
     } catch {
       setError("로그인 중 오류가 발생했습니다.");
@@ -104,13 +105,6 @@ export default function AdminLogin() {
             {loading ? "로그인 중..." : "로그인"}
           </button>
         </form>
-
-        {/* Test Account Info */}
-        <div className="mt-8 p-4 bg-[#2a2a2a] rounded-lg border border-[#3a3a3a]">
-          <p className="text-gray-500 text-xs mb-2">테스트 계정</p>
-          <p className="text-gray-400 text-sm">이메일: admin@admin.com</p>
-          <p className="text-gray-400 text-sm">비밀번호: admin123</p>
-        </div>
 
         {/* Back to Main */}
         <div className="text-center mt-6">
