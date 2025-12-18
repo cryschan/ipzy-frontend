@@ -109,8 +109,8 @@ export default function AdminLogin() {
         {/* Test Account Info */}
         <div className="mt-8 p-4 bg-[#2a2a2a] rounded-lg border border-[#3a3a3a]">
           <p className="text-gray-500 text-xs mb-2">테스트 계정</p>
-          <p className="text-gray-400 text-sm">이메일: admin@admin.com</p>
-          <p className="text-gray-400 text-sm">비밀번호: admin123</p>
+          <p className="text-gray-400 text-sm">이메일: admin@ipzy.com</p>
+          <p className="text-gray-400 text-sm">비밀번호: 1234qwer</p>
         </div>
 
         {/* Back to Main */}
