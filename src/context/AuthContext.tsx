@@ -1,5 +1,11 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import type { ReactNode } from "react";
+
+import {
+  adminLogin as apiAdminLogin,
+  adminLogout as apiAdminLogout,
+  fetchAdminMe,
+} from "@/api/adminAuth";
 import { fetchMe, logout as apiLogout } from "@/api/auth";
 
 type SubscriptionPlan = "free" | "basic" | "pro";
@@ -38,6 +44,7 @@ interface AuthContextType {
   adminLogin: (email: string, password: string) => Promise<boolean>;
   socialLogin: (provider: "google" | "kakao") => Promise<boolean>;
   refreshUserFromServer: () => Promise<boolean>;
+  refreshAdminFromServer: () => Promise<boolean>;
   signup: (email: string, password: string, name: string) => Promise<boolean>;
   checkEmailDuplicate: (email: string) => Promise<boolean>;
   logout: () => Promise<void>;
@@ -78,8 +85,7 @@ const mockSavedOutfits: SavedOutfit[] = [
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [savedOutfits, setSavedOutfits] =
-    useState<SavedOutfit[]>(mockSavedOutfits);
+  const [savedOutfits, setSavedOutfits] = useState<SavedOutfit[]>(mockSavedOutfits);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     // 모의 로그인 (실제로는 API 호출)
@@ -102,29 +108,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false;
   };
 
-  const adminLogin = async (
-    email: string,
-    password: string
-  ): Promise<boolean> => {
-    // 모의 관리자 로그인 (실제로는 API 호출)
-    // 테스트용: admin@admin.com / admin123
-    if (email === "admin@admin.com" && password === "admin123") {
-      setUser({
-        id: "admin-1",
-        email,
-        name: "관리자",
-        role: "admin",
-        subscription: {
-          plan: "pro",
-          startDate: null,
-          endDate: null,
-          isActive: true,
-        },
-        createdAt: "2025-01-01",
-      });
-      return true;
+  const adminLogin = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const res = await apiAdminLogin({ email, password });
+      if (res.success && res.data) {
+        const admin = res.data;
+        setUser({
+          id: String(admin.id),
+          email: admin.email,
+          name: admin.name,
+          role: "admin",
+          subscription: {
+            plan: "pro",
+            startDate: null,
+            endDate: null,
+            isActive: true,
+          },
+          createdAt: new Date().toISOString().split("T")[0],
+        });
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
     }
-    return false;
   };
 
   const isAdmin = (): boolean => {
@@ -160,14 +167,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const socialLogin = async (
-    provider: "google" | "kakao"
-  ): Promise<boolean> => {
+  // 관리자 세션 기반으로 현재 관리자 정보를 갱신
+  const refreshAdminFromServer = useCallback(async (): Promise<boolean> => {
+    try {
+      const res = await fetchAdminMe();
+      if (res.success && res.data) {
+        const admin = res.data;
+        setUser({
+          id: String(admin.id),
+          email: admin.email,
+          name: admin.name,
+          role: "admin",
+          subscription: {
+            plan: "pro",
+            startDate: null,
+            endDate: null,
+            isActive: true,
+          },
+          createdAt: new Date().toISOString().split("T")[0],
+        });
+        return true;
+      }
+      setUser(null);
+      return false;
+    } catch {
+      setUser(null);
+      return false;
+    }
+  }, []);
+
+  const socialLogin = async (provider: "google" | "kakao"): Promise<boolean> => {
     // 모의 소셜 로그인
-    const email =
-      provider === "google"
-        ? "google_user@example.com"
-        : "kakao_user@example.com";
+    const email = provider === "google" ? "google_user@example.com" : "kakao_user@example.com";
     const name = provider === "google" ? "Google 사용자" : "Kakao 사용자";
     setUser({
       id: provider + "-1",
@@ -185,11 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
-  const signup = async (
-    email: string,
-    password: string,
-    name: string
-  ): Promise<boolean> => {
+  const signup = async (email: string, password: string, name: string): Promise<boolean> => {
     // 모의 회원가입 (실제로는 API 호출)
     if (email && password && name) {
       setUser({
@@ -216,17 +243,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // 테스트용: test@test.com은 이미 사용 중인 것으로 처리
-    const existingEmails = [
-      "test@test.com",
-      "admin@admin.com",
-      "user@example.com",
-    ];
+    const existingEmails = ["test@test.com", "admin@admin.com", "user@example.com"];
     return !existingEmails.includes(email.toLowerCase());
   };
 
   const logout = async (): Promise<void> => {
+    const wasAdmin = user?.role === "admin" || user?.role === "super_admin";
     try {
-      await apiLogout();
+      // 관리자면 관리자 로그아웃 API, 아니면 일반 로그아웃 API 호출
+      if (wasAdmin) {
+        await apiAdminLogout();
+      } else {
+        await apiLogout();
+      }
     } catch {
       // ignore API error; proceed with local cleanup
     } finally {
@@ -307,6 +336,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         adminLogin,
         socialLogin,
         refreshUserFromServer,
+        refreshAdminFromServer,
         signup,
         checkEmailDuplicate,
         logout,
@@ -322,6 +352,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {

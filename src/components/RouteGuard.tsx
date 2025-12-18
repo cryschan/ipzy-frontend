@@ -1,7 +1,8 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { useAuth } from "../context/AuthContext";
 import type { ReactNode } from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+
+import { useAuth } from "../context/AuthContext";
 
 interface RouteGuardProps {
   children?: ReactNode;
@@ -10,10 +11,7 @@ interface RouteGuardProps {
 }
 
 // 인증이 필요한 페이지 보호
-export function ProtectedRoute({
-  children,
-  redirectTo = "/login",
-}: RouteGuardProps) {
+export function ProtectedRoute({ children, redirectTo = "/login" }: RouteGuardProps) {
   const { user, refreshUserFromServer } = useAuth();
   const location = useLocation();
   const attemptedRef = useRef(false);
@@ -22,7 +20,6 @@ export function ProtectedRoute({
   useEffect(() => {
     if (!user && !attemptedRef.current) {
       attemptedRef.current = true;
-      setLoading(true);
       void refreshUserFromServer().finally(() => setLoading(false));
     }
   }, [user, refreshUserFromServer]);
@@ -33,9 +30,7 @@ export function ProtectedRoute({
 
   if (!user) {
     // 로그인 후 원래 페이지로 돌아갈 수 있도록 현재 위치 저장
-    return (
-      <Navigate to={redirectTo} state={{ from: location.pathname }} replace />
-    );
+    return <Navigate to={redirectTo} state={{ from: location.pathname }} replace />;
   }
 
   // 하위 라우팅(Outlet) 패턴 지원: children이 없으면 Outlet 렌더
@@ -69,17 +64,16 @@ export function QuizRequiredRoute({ children }: RouteGuardProps) {
 
 // 관리자 페이지 보호
 export function AdminRoute({ children }: RouteGuardProps) {
-  const { user, isAdmin, refreshUserFromServer } = useAuth();
+  const { user, isAdmin, refreshAdminFromServer } = useAuth();
   const attemptedRef = useRef(false);
   const [loading, setLoading] = useState(() => !user);
 
   useEffect(() => {
     if (!user && !attemptedRef.current) {
       attemptedRef.current = true;
-      setLoading(true);
-      void refreshUserFromServer().finally(() => setLoading(false));
+      void refreshAdminFromServer().finally(() => setLoading(false));
     }
-  }, [user, refreshUserFromServer]);
+  }, [user, refreshAdminFromServer]);
 
   if (loading) {
     return null;
