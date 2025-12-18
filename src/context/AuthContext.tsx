@@ -5,6 +5,7 @@ import {
   adminLogin as apiAdminLogin,
   adminLogout as apiAdminLogout,
   fetchAdminMe,
+  type AdminMeResponse,
 } from "@/api/adminAuth";
 import { fetchMe, logout as apiLogout } from "@/api/auth";
 
@@ -37,11 +38,17 @@ interface SavedOutfit {
   reason: string;
 }
 
+// 관리자 로그인 결과 타입
+interface AdminLoginResult {
+  success: boolean;
+  errorMessage?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   savedOutfits: SavedOutfit[];
   login: (email: string, password: string) => Promise<boolean>;
-  adminLogin: (email: string, password: string) => Promise<boolean>;
+  adminLogin: (email: string, password: string) => Promise<AdminLoginResult>;
   socialLogin: (provider: "google" | "kakao") => Promise<boolean>;
   refreshUserFromServer: () => Promise<boolean>;
   refreshAdminFromServer: () => Promise<boolean>;
@@ -56,6 +63,25 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
+
+/**
+ * 서버 응답의 관리자 정보를 User 객체로 변환하는 헬퍼 함수
+ */
+function buildUserFromAdminResponse(admin: AdminMeResponse): User {
+  return {
+    id: String(admin.id),
+    email: admin.email,
+    name: admin.name,
+    role: admin.role === "ADMIN" ? "admin" : "user",
+    subscription: {
+      plan: "pro",
+      startDate: null,
+      endDate: null,
+      isActive: true,
+    },
+    createdAt: new Date().toISOString().split("T")[0],
+  };
+}
 
 // 모의 저장된 코디 데이터
 const mockSavedOutfits: SavedOutfit[] = [
@@ -108,29 +134,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false;
   };
 
-  const adminLogin = async (email: string, password: string): Promise<boolean> => {
+  const adminLogin = async (email: string, password: string): Promise<AdminLoginResult> => {
     try {
       const res = await apiAdminLogin({ email, password });
       if (res.success && res.data) {
-        const admin = res.data;
-        setUser({
-          id: String(admin.id),
-          email: admin.email,
-          name: admin.name,
-          role: "admin",
-          subscription: {
-            plan: "pro",
-            startDate: null,
-            endDate: null,
-            isActive: true,
-          },
-          createdAt: new Date().toISOString().split("T")[0],
-        });
-        return true;
+        setUser(buildUserFromAdminResponse(res.data));
+        return { success: true };
       }
-      return false;
+      return {
+        success: false,
+        errorMessage: res.error?.message ?? "로그인에 실패했습니다",
+      };
     } catch {
-      return false;
+      return {
+        success: false,
+        errorMessage: "로그인 중 오류가 발생했습니다",
+      };
     }
   };
 
@@ -172,20 +191,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await fetchAdminMe();
       if (res.success && res.data) {
-        const admin = res.data;
-        setUser({
-          id: String(admin.id),
-          email: admin.email,
-          name: admin.name,
-          role: "admin",
-          subscription: {
-            plan: "pro",
-            startDate: null,
-            endDate: null,
-            isActive: true,
-          },
-          createdAt: new Date().toISOString().split("T")[0],
-        });
+        setUser(buildUserFromAdminResponse(res.data));
         return true;
       }
       setUser(null);
