@@ -1,7 +1,7 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
 import { redirectToKakaoLogin } from "../api/auth";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -71,7 +71,12 @@ export default function Login() {
               type="button"
               onClick={async () => {
                 // OAuth 리다이렉트 후 돌아올 경로 저장
-                sessionStorage.setItem("postLoginRedirect", from);
+                // 퀴즈 완료 후 로그인하는 경우 기존 postLoginRedirect 유지
+                const existingRedirect = sessionStorage.getItem("postLoginRedirect");
+                const pendingQuiz = sessionStorage.getItem("pendingQuizAnswers");
+                if (!existingRedirect || !pendingQuiz) {
+                  sessionStorage.setItem("postLoginRedirect", from);
+                }
                 await logout();
                 redirectToKakaoLogin();
               }}
