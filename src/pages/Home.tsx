@@ -1,11 +1,10 @@
-import { ArrowRight, Menu, X, User, Gift, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { ArrowRight, Gift, Menu, Sparkles, User, X } from "lucide-react";
 import Logo from "../components/Logo";
-import { redirectToKakaoLogin } from "../api/auth";
-import { QUIZ_EXAMPLES } from "../constants/quizExamples";
 import { QUIZ_PATH } from "../constants/navigation";
+import { QUIZ_EXAMPLES } from "../constants/quizExamples";
+import { useAuth } from "../context/AuthContext";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,14 +14,10 @@ export default function Home() {
   const navigateToQuiz = () => {
     navigate(QUIZ_PATH);
   };
-  const handleLogin = async () => {
+  const handleLogin = () => {
     // 로그인 후 돌아올 경로 저장 (현재 경로)
-    sessionStorage.setItem(
-      "postLoginRedirect",
-      window.location.pathname || "/"
-    );
-    await logout();
-    redirectToKakaoLogin();
+    sessionStorage.setItem("postLoginRedirect", window.location.pathname || "/");
+    navigate("/login");
   };
 
   return (
@@ -35,11 +30,7 @@ export default function Home() {
             <span className="text-xl font-black tracking-tighter">뭐입지</span>
           </div>
           <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
+            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
           <div className="hidden md:flex items-center gap-4">
             {user ? (
@@ -109,11 +100,7 @@ export default function Home() {
             >
               Start
             </button>
-            <a
-              href="#about"
-              onClick={() => setMenuOpen(false)}
-              className="text-2xl font-bold"
-            >
+            <a href="#about" onClick={() => setMenuOpen(false)} className="text-2xl font-bold">
               About
             </a>
             <button
@@ -169,16 +156,12 @@ export default function Home() {
                 <div className="absolute top-8 right-8 w-24 h-24 bg-[#FB5010] rounded-full opacity-80" />
                 <div className="absolute bottom-12 left-8 w-16 h-16 bg-[#1a1a1a] rounded-full" />
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <span className="text-[200px] font-black text-white/50">
-                    ?
-                  </span>
+                  <span className="text-[200px] font-black text-white/50">?</span>
                 </div>
                 {/* Magazine Style Label */}
                 <div className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] text-white p-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs tracking-widest uppercase">
-                      Issue 001
-                    </span>
+                    <span className="text-xs tracking-widest uppercase">Issue 001</span>
                     <span className="text-xs">2025</span>
                   </div>
                 </div>
@@ -204,17 +187,12 @@ export default function Home() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="w-4 h-4" />
-                  <span className="text-sm font-bold uppercase tracking-wider">
-                    무료 체험
-                  </span>
+                  <span className="text-sm font-bold uppercase tracking-wider">무료 체험</span>
                 </div>
                 <h3 className="text-2xl md:text-3xl font-black">
-                  회원가입하면{" "}
-                  <span className="underline decoration-4">5회 무료</span> 체험!
+                  회원가입하면 <span className="underline decoration-4">5회 무료</span> 체험!
                 </h3>
-                <p className="text-white/80 mt-1">
-                  카드 등록 없이 AI 코디 추천을 경험해보세요
-                </p>
+                <p className="text-white/80 mt-1">카드 등록 없이 AI 코디 추천을 경험해보세요</p>
               </div>
             </div>
             <button
@@ -248,9 +226,7 @@ export default function Home() {
                 key={i}
                 className="group border border-white/10 p-6 hover:border-[#FB5010] transition-colors"
               >
-                <span className="text-5xl font-black text-[#FB5010]">
-                  {item.num}
-                </span>
+                <span className="text-5xl font-black text-[#FB5010]">{item.num}</span>
                 <h3 className="text-xl font-bold mt-6 mb-3">{item.q}</h3>
                 <p className="text-sm text-gray-500">{item.opts}</p>
               </div>
@@ -279,9 +255,7 @@ export default function Home() {
               <span className="text-gray-500">|</span>
               <span className="text-sm text-gray-500">AI Styling Service</span>
             </div>
-            <p className="text-sm text-gray-500">
-              © 2025 뭐입지. All rights reserved.
-            </p>
+            <p className="text-sm text-gray-500">© 2025 뭐입지. All rights reserved.</p>
           </div>
         </div>
       </footer>

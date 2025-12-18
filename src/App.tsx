@@ -1,39 +1,34 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { AuthProvider } from "./context/AuthContext";
-import {
-  ProtectedRoute,
-  GuestRoute,
-  QuizRequiredRoute,
-  AdminRoute,
-} from "./components/RouteGuard";
-import Home from "./pages/Home";
-import Quiz from "./pages/Quiz";
-import Loading from "./pages/Loading";
-import Result from "./pages/Result";
-import Login from "./pages/Login";
-import MyPage from "./pages/MyPage";
-import AccountManagement from "./pages/AccountManagement";
-import Pricing from "./pages/Pricing";
-import Payment from "./pages/Payment";
-import NotFound from "./pages/NotFound";
-import ServerError from "./pages/ServerError";
-import NetworkError from "./pages/NetworkError";
-import ValidationExamples from "./pages/ValidationExamples";
-import AuthCallback from "./pages/AuthCallback";
-
 // Admin
 import AdminLayout from "./admin/components/AdminLayout";
 import AdminLogin from "./admin/pages/AdminLogin";
 import Dashboard from "./admin/pages/Dashboard";
-import UserList from "./admin/pages/UserList";
-import UserDetail from "./admin/pages/UserDetail";
-import Subscriptions from "./admin/pages/Subscriptions";
 import Payments from "./admin/pages/Payments";
 import Products from "./admin/pages/Products";
 import QuizManagement from "./admin/pages/QuizManagement";
 import Settings from "./admin/pages/Settings";
+import Subscriptions from "./admin/pages/Subscriptions";
+import UserDetail from "./admin/pages/UserDetail";
+import UserList from "./admin/pages/UserList";
+import { AdminRoute, GuestRoute, ProtectedRoute, QuizRequiredRoute } from "./components/RouteGuard";
+import ScrollToTop from "./components/ScrollToTop";
+import { AuthProvider } from "./context/AuthContext";
+import AccountManagement from "./pages/AccountManagement";
+import AuthCallback from "./pages/AuthCallback";
+import Home from "./pages/Home";
+import Loading from "./pages/Loading";
+import Login from "./pages/Login";
+import MyPage from "./pages/MyPage";
+import NetworkError from "./pages/NetworkError";
+import NotFound from "./pages/NotFound";
+import Payment from "./pages/Payment";
+import Pricing from "./pages/Pricing";
+import Quiz from "./pages/Quiz";
+import Result from "./pages/Result";
+import ServerError from "./pages/ServerError";
+import ValidationExamples from "./pages/ValidationExamples";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +37,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             {/* 공개 페이지 */}
             <Route path="/" element={<Home />} />
@@ -71,10 +67,7 @@ function App() {
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route element={<AdminRoute />}>
               <Route path="/admin" element={<AdminLayout />}>
-                <Route
-                  index
-                  element={<Navigate to="/admin/dashboard" replace />}
-                />
+                <Route index element={<Navigate to="/admin/dashboard" replace />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="users" element={<UserList />} />
                 <Route path="users/:id" element={<UserDetail />} />

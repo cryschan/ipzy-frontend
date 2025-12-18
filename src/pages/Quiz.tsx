@@ -5,6 +5,7 @@ import {
   clearStoredSession,
   completeQuizSession,
   fetchQuestions,
+  generateRecommendations,
   getDefaultQuizId,
   getStoredSession,
   type Question,
@@ -69,6 +70,7 @@ export default function Quiz() {
     clearStoredSession();
   }, []);
 
+  // 클릭 기반 진행(답변 저장 + 자동 진행)
   const handleSelect = async (value: string) => {
     // 이미 진행 중이면 추가 클릭 무시 (동시 클릭 방지)
     if (advancingRef.current) return;
@@ -110,6 +112,13 @@ export default function Quiz() {
           const session = getStoredSession();
           if (session) {
             await completeQuizSession(session.sessionId);
+            // 완료 성공 시 추천 생성 트리거
+            try {
+              await generateRecommendations(session.sessionId);
+            } catch (genError) {
+              // 추천 생성 실패는 사용자 흐름을 막지 않음
+              console.error("추천 생성 요청 실패:", genError);
+            }
           }
         } catch (error) {
           console.error("세션 완료 실패:", error);
@@ -147,6 +156,7 @@ export default function Quiz() {
     setIsAdvancing(false);
   };
 
+  // 키보드/수동 진행
   const handleNext = async () => {
     if (currentStep < questions.length - 1) {
       setCurrentStep((prev) => prev + 1);
@@ -156,6 +166,13 @@ export default function Quiz() {
         const session = getStoredSession();
         if (session) {
           await completeQuizSession(session.sessionId);
+          // 완료 성공 시 추천 생성 트리거
+          try {
+            await generateRecommendations(session.sessionId);
+          } catch (genError) {
+            // 추천 생성 실패는 사용자 흐름을 막지 않음
+            console.error("추천 생성 요청 실패:", genError);
+          }
         }
       } catch (error) {
         console.error("세션 완료 실패:", error);

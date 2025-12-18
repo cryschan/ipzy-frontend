@@ -1,6 +1,8 @@
-import { ArrowRight, RotateCcw, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { QUIZ_PATH } from "../constants/navigation";
+import { ArrowRight, HomeIcon, RotateCcw } from "lucide-react";
+import { getStoredSession, regenerateRecommendations } from "../utils/quizApi";
+
+import { QUIZ_PATH } from "@/constants/navigation";
 
 // 모의 데이터
 const mockResult = {
@@ -30,17 +32,26 @@ const mockResult = {
 export default function Result() {
   const navigate = useNavigate();
 
-  const navigateToQuiz = () => {
-    navigate(QUIZ_PATH);
+  const navigateToQuiz = async () => {
+    try {
+      const session = getStoredSession();
+      if (!session) {
+        // 세션이 없으면 퀴즈로 이동하여 새로 시작
+        navigate(QUIZ_PATH);
+        return;
+      }
+      await regenerateRecommendations(session.sessionId);
+      // 필요 시 로딩 화면으로 이동하여 진행 표시 가능
+      // navigate("/loading");
+    } catch (error) {
+      console.error("추천 재생성 실패:", error);
+      // 실패 시에도 사용성 유지: 퀴즈로 돌아가 재시도 유도
+      // navigate("/quiz");
+    }
   };
 
-  const handleHome = () => {
+  const navigateToHome = () => {
     navigate("/");
-  };
-
-  const handlePurchase = () => {
-    // 무신사로 이동 (실제 구현 시 장바구니 연동)
-    window.open("https://www.musinsa.com", "_blank");
   };
 
   return (
@@ -49,17 +60,10 @@ export default function Result() {
       <header className="px-6 py-4 border-b border-gray-100">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <button
-            onClick={handleHome}
+            onClick={navigateToHome}
             className="text-xl font-black tracking-tighter hover:text-[#FB5010] transition-colors"
           >
             뭐입지
-          </button>
-          <button
-            onClick={navigateToQuiz}
-            className="flex items-center gap-2 text-gray-500 hover:text-[#1a1a1a] transition-colors"
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span className="text-sm">다시하기</span>
           </button>
         </div>
       </header>
@@ -71,9 +75,7 @@ export default function Result() {
           <p className="text-[#FB5010] text-sm font-bold tracking-widest uppercase mb-4">
             AI's Pick
           </p>
-          <h1 className="text-4xl md:text-5xl font-black">
-            Your Outfit
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-black">Your Outfit</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -103,10 +105,7 @@ export default function Result() {
                 { label: "Bottom", item: mockResult.bottom },
                 { label: "Shoes", item: mockResult.shoes },
               ].map((product, i) => (
-                <div
-                  key={i}
-                  className="flex gap-4 border-b border-gray-100 pb-6"
-                >
+                <div key={i} className="flex gap-4 border-b border-gray-100 pb-6">
                   {/* Product Image Placeholder */}
                   <div className="w-20 h-20 bg-gray-100 flex items-center justify-center flex-shrink-0">
                     <span className="text-2xl text-gray-300">?</span>
@@ -134,23 +133,21 @@ export default function Result() {
               <p className="text-[#FB5010] text-xs font-bold uppercase tracking-widest mb-3">
                 AI's Comment
               </p>
-              <p className="text-sm leading-relaxed text-gray-300">
-                "{mockResult.reason}"
-              </p>
+              <p className="text-sm leading-relaxed text-gray-300">"{mockResult.reason}"</p>
             </div>
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 mt-6">
               <button
-                onClick={handlePurchase}
-                className="flex-1 flex items-center justify-center gap-2 bg-[#FB5010] text-white px-6 py-4 font-bold hover:bg-[#E04600] transition-colors rounded-full"
+                onClick={navigateToHome}
+                className="flex-1 flex items-center justify-center gap-2 border-2 border-[#1a1a1a] px-6 py-4 font-bold hover:bg-[#1a1a1a] hover:text-white transition-colors rounded-full"
               >
-                <ShoppingBag className="w-5 h-5" />
-                <span>무신사에서 구매하기</span>
+                <HomeIcon className="w-5 h-5" />
+                <span>홈으로 가기</span>
               </button>
               <button
                 onClick={navigateToQuiz}
-                className="flex-1 flex items-center justify-center gap-2 border-2 border-[#1a1a1a] px-6 py-4 font-bold hover:bg-[#1a1a1a] hover:text-white transition-colors rounded-full"
+                className="flex-1 flex items-center justify-center gap-2 bg-[#FB5010] text-white px-6 py-4 font-bold hover:bg-[#E04600] transition-colors rounded-full"
               >
                 <RotateCcw className="w-5 h-5" />
                 <span>다시 추천받기</span>
@@ -181,7 +178,7 @@ export default function Result() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl font-bold mb-4">다른 스타일도 궁금하다면?</h2>
           <button
-            onClick={navigateToQuiz}
+            onClick={navigateToHome}
             className="group inline-flex items-center gap-3 bg-[#FB5010] text-white px-8 py-4 font-bold hover:bg-[#E04600] transition-colors rounded-full"
           >
             <span>새로운 코디 추천받기</span>
