@@ -1,14 +1,34 @@
 import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Loading() {
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
+    // sessionStorage에서 로그인 전 저장된 답변 복원
+    const pendingAnswers = sessionStorage.getItem("pendingQuizAnswers");
+    let answersToPass = location.state?.answers;
+
+    // location.state에 답변이 없으면 sessionStorage에서 복원
+    if (!answersToPass && pendingAnswers) {
+      try {
+        answersToPass = JSON.parse(pendingAnswers);
+        // 사용 후 삭제
+        sessionStorage.removeItem("pendingQuizAnswers");
+      } catch (error) {
+        console.error("답변 복원 실패:", error);
+      }
+    }
+
     // 2.5초 후 결과 페이지로 이동
     const timer = setTimeout(() => {
-      navigate("/result", { state: location.state });
+      navigate("/result", {
+        state: {
+          ...location.state,
+          answers: answersToPass,
+        },
+      });
     }, 2500);
 
     return () => clearTimeout(timer);
@@ -65,17 +85,11 @@ export default function Loading() {
           <div className="w-2 h-2 bg-[#FB5010] rounded-full" />
           <span>취향 분석 중...</span>
         </div>
-        <div
-          className="flex items-center gap-3 animate-pulse"
-          style={{ animationDelay: "500ms" }}
-        >
+        <div className="flex items-center gap-3 animate-pulse" style={{ animationDelay: "500ms" }}>
           <div className="w-2 h-2 bg-white/30 rounded-full" />
           <span>무신사 상품 검색 중...</span>
         </div>
-        <div
-          className="flex items-center gap-3 animate-pulse"
-          style={{ animationDelay: "1000ms" }}
-        >
+        <div className="flex items-center gap-3 animate-pulse" style={{ animationDelay: "1000ms" }}>
           <div className="w-2 h-2 bg-white/30 rounded-full" />
           <span>최적의 코디 조합 생성 중...</span>
         </div>

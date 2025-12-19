@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import LoginRequiredModal from "../components/LoginRequiredModal";
+import { useAuth } from "../context/AuthContext";
 import {
   clearStoredSession,
   completeQuizSession,
   fetchQuestions,
+  generateRecommendations,
   getDefaultQuizId,
   getStoredSession,
   type Question,
@@ -14,6 +17,7 @@ import {
 
 export default function Quiz() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +25,7 @@ export default function Quiz() {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [isRestored, setIsRestored] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const advancingRef = useRef(false);
   const advanceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentStepRef = useRef(0);
@@ -62,6 +67,31 @@ export default function Quiz() {
     loadQuiz();
   }, []);
 
+  // Edge Case: 페이지 새로고침 또는 로그인 후 돌아왔을 때 처리
+  useEffect(() => {
+    // 초기 로딩이 완료된 후에만 체크
+    if (!isRestored) return;
+
+    const pendingAnswers = sessionStorage.getItem("pendingQuizAnswers");
+    if (!pendingAnswers) return;
+
+    if (user) {
+      // 케이스 3: 로그인 완료 + 저장된 답변 있음 → 바로 Loading으로
+      try {
+        const parsedAnswers = JSON.parse(pendingAnswers);
+        // state와 함께 전달해야 QuizRequiredRoute 통과
+        navigate("/loading", { state: { answers: parsedAnswers } });
+      } catch (error) {
+        console.error("답변 복원 실패:", error);
+        // 복원 실패 시 저장된 답변 삭제하고 처음부터 시작
+        sessionStorage.removeItem("pendingQuizAnswers");
+      }
+    } else {
+      // 케이스 1: 비로그인 + 저장된 답변 있음 → 모달 표시
+      setShowLoginModal(true);
+    }
+  }, [isRestored, user, navigate]);
+
   // 중간에 빠져나가면 복구하지 않으므로 sessionStorage 저장 제거
 
   // 퀴즈 세션 및 진행 상태 완전 초기화
@@ -69,6 +99,14 @@ export default function Quiz() {
     clearStoredSession();
   }, []);
 
+  // 로그인 모달 확인 시 로그인 페이지로 이동
+  const handleLoginModalConfirm = () => {
+    setShowLoginModal(false);
+    // 로그인 후 /loading으로 돌아가도록 state 전달
+    navigate("/login", { state: { from: "/loading" } });
+  };
+
+  // 클릭 기반 진행(답변 저장 + 자동 진행)
   const handleSelect = async (value: string) => {
     // 이미 진행 중이면 추가 클릭 무시 (동시 클릭 방지)
     if (advancingRef.current) return;
@@ -105,11 +143,29 @@ export default function Quiz() {
         advancingRef.current = false;
         setIsAdvancing(false);
       } else {
-        // 마지막 질문이면 세션 완료 처리 후 로딩 페이지로 이동
+        // 마지막 질문이면 로그인 체크 후 처리
+        if (!user) {
+          // 비로그인 사용자: 답변 저장 후 로그인 유도
+          sessionStorage.setItem("pendingQuizAnswers", JSON.stringify(nextAnswers));
+          sessionStorage.setItem("postLoginRedirect", "/loading");
+          advancingRef.current = false;
+          setIsAdvancing(false);
+          setShowLoginModal(true);
+          return;
+        }
+
+        // 로그인 사용자: 세션 완료 처리 후 로딩 페이지로 이동
         try {
           const session = getStoredSession();
           if (session) {
             await completeQuizSession(session.sessionId);
+            // 완료 성공 시 추천 생성 트리거
+            try {
+              await generateRecommendations(session.sessionId);
+            } catch (genError) {
+              // 추천 생성 실패는 사용자 흐름을 막지 않음
+              console.error("추천 생성 요청 실패:", genError);
+            }
           }
         } catch (error) {
           console.error("세션 완료 실패:", error);
@@ -147,15 +203,32 @@ export default function Quiz() {
     setIsAdvancing(false);
   };
 
+  // 키보드/수동 진행
   const handleNext = async () => {
     if (currentStep < questions.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      // 모든 질문 완료 - 세션 완료 처리 후 로딩 페이지로 이동
+      // 모든 질문 완료 - 로그인 체크 후 처리
+      if (!user) {
+        // 비로그인 사용자: 답변 저장 후 로그인 유도
+        sessionStorage.setItem("pendingQuizAnswers", JSON.stringify(answers));
+        sessionStorage.setItem("postLoginRedirect", "/loading");
+        setShowLoginModal(true);
+        return;
+      }
+
+      // 로그인 사용자: 세션 완료 처리 후 로딩 페이지로 이동
       try {
         const session = getStoredSession();
         if (session) {
           await completeQuizSession(session.sessionId);
+          // 완료 성공 시 추천 생성 트리거
+          try {
+            await generateRecommendations(session.sessionId);
+          } catch (genError) {
+            // 추천 생성 실패는 사용자 흐름을 막지 않음
+            console.error("추천 생성 요청 실패:", genError);
+          }
         }
       } catch (error) {
         console.error("세션 완료 실패:", error);
@@ -317,6 +390,9 @@ export default function Quiz() {
           </div>
         </div>
       </div>
+
+      {/* Login Required Modal */}
+      <LoginRequiredModal isOpen={showLoginModal} onConfirm={handleLoginModalConfirm} />
     </main>
   );
 }

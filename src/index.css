@@ -1,14 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "Courier New", Courier, monospace;
-  --color-accent-orange: #FF4500;
+  --color-accent-orange: #ff4500;
 }
 
 body {
@@ -134,7 +134,8 @@ body {
 
 /* Custom animations */
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -170,7 +171,8 @@ body {
 
 /* Bigger bounce for loading dots */
 @keyframes big-bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -180,11 +182,6 @@ body {
 
 .animate-big-bounce {
   animation: big-bounce 0.9s infinite ease-in-out;
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
 }
 
 /* Pointer cursor on button hover */

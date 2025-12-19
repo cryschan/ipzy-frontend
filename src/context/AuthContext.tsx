@@ -1,11 +1,11 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
 import {
   adminLogin as apiAdminLogin,
   adminLogout as apiAdminLogout,
-  fetchAdminMe,
   type AdminMeResponse,
+  fetchAdminMe,
 } from "@/api/adminAuth";
 import { fetchMe, logout as apiLogout } from "@/api/auth";
 
@@ -201,6 +201,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false;
     }
   }, []);
+
+  // 앱 초기 로드 시 서버 세션으로 사용자 동기화
+  useEffect(() => {
+    if (!user) {
+      void refreshUserFromServer();
+    }
+  }, [user, refreshUserFromServer]);
 
   const socialLogin = async (provider: "google" | "kakao"): Promise<boolean> => {
     // 모의 소셜 로그인
