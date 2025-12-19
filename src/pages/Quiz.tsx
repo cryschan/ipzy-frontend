@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import LoginRequiredModal from "../components/LoginRequiredModal";
+import SEO from "../components/SEO";
 import { useAuth } from "../context/AuthContext";
 import {
   clearStoredSession,
@@ -314,85 +315,96 @@ export default function Quiz() {
   }
 
   return (
-    <main className="min-h-screen bg-white text-[#1a1a1a] flex flex-col" onKeyDown={handleKeyDown}>
-      {/* Header */}
-      <header className="px-6 py-4 border-b border-gray-100">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 text-gray-500 hover:text-[#1a1a1a] transition-colors"
-            aria-label={currentStep > 0 ? "이전 질문으로" : "홈으로 돌아가기"}
-          >
-            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
-            <span className="text-sm">뒤로</span>
-          </button>
-          <span className="text-xl font-black tracking-tighter">뭐입지</span>
-          <div className="w-16" />
-        </div>
-      </header>
-
-      {/* Progress Bar */}
-      <div
-        className="w-full h-1 bg-gray-100"
-        role="progressbar"
-        aria-valuenow={answeredCount}
-        aria-valuemin={0}
-        aria-valuemax={questions.length}
-        aria-label={`답변 완료 ${answeredCount}/${questions.length}`}
+    <>
+      <SEO
+        title="AI 코디 퀴즈 - 뭐입지"
+        description="4가지 질문에 답하고 AI가 추천하는 무신사 코디를 받아보세요. 무료로 시작하세요!"
+        keywords="코디 추천, 퀴즈, AI, 무신사, 스타일 테스트"
+        url="https://ipzy.vercel.app/quiz"
+      />
+      <main
+        className="min-h-screen bg-white text-[#1a1a1a] flex flex-col"
+        onKeyDown={handleKeyDown}
       >
-        <div
-          className="h-full bg-[#FB5010] transition-all duration-300"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-
-      {/* Question Content */}
-      <div className="flex-1 flex flex-col justify-center px-6 py-12">
-        <div className="max-w-2xl mx-auto w-full">
-          {/* Step Indicator */}
-          <div className="mb-8">
-            <span className="text-[#FB5010] text-sm font-bold tracking-widest">
-              Q{currentStep + 1} / {questions.length}
-            </span>
+        {/* Header */}
+        <header className="px-6 py-4 border-b border-gray-100">
+          <div className="max-w-2xl mx-auto flex items-center justify-between">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 text-gray-500 hover:text-[#1a1a1a] transition-colors"
+              aria-label={currentStep > 0 ? "이전 질문으로" : "홈으로 돌아가기"}
+            >
+              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
+              <span className="text-sm">뒤로</span>
+            </button>
+            <span className="text-xl font-black tracking-tighter">뭐입지</span>
+            <div className="w-16" />
           </div>
+        </header>
 
-          {/* Question */}
-          <h1 className="text-4xl md:text-5xl font-black mb-12" id="question-title">
-            {currentQuestion.question}
-          </h1>
-
-          {/* Options */}
+        {/* Progress Bar */}
+        <div
+          className="w-full h-1 bg-gray-100"
+          role="progressbar"
+          aria-valuenow={answeredCount}
+          aria-valuemin={0}
+          aria-valuemax={questions.length}
+          aria-label={`답변 완료 ${answeredCount}/${questions.length}`}
+        >
           <div
-            className="grid grid-cols-2 gap-4"
-            role="radiogroup"
-            aria-labelledby="question-title"
-          >
-            {currentQuestion.options.map((option, index) => (
-              <button
-                key={option.value}
-                onClick={() => handleSelect(option.value)}
-                disabled={isAdvancing}
-                className={`p-6 border-2 text-left transition-all rounded-lg ${
-                  answers[currentQuestion.id] === option.value
-                    ? "border-[#FB5010] bg-[#FB5010]/5"
-                    : `border-gray-200 ${
-                        isAdvancing ? "opacity-60 cursor-not-allowed" : "hover:border-gray-400"
-                      }`
-                }`}
-                role="radio"
-                aria-checked={answers[currentQuestion.id] === option.value}
-                aria-label={option.label}
-                tabIndex={index === 0 ? 0 : -1}
-              >
-                <span className="text-lg font-bold">{option.label}</span>
-              </button>
-            ))}
+            className="h-full bg-[#FB5010] transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        {/* Question Content */}
+        <div className="flex-1 flex flex-col justify-center px-6 py-12">
+          <div className="max-w-2xl mx-auto w-full">
+            {/* Step Indicator */}
+            <div className="mb-8">
+              <span className="text-[#FB5010] text-sm font-bold tracking-widest">
+                Q{currentStep + 1} / {questions.length}
+              </span>
+            </div>
+
+            {/* Question */}
+            <h1 className="text-4xl md:text-5xl font-black mb-12" id="question-title">
+              {currentQuestion.question}
+            </h1>
+
+            {/* Options */}
+            <div
+              className="grid grid-cols-2 gap-4"
+              role="radiogroup"
+              aria-labelledby="question-title"
+            >
+              {currentQuestion.options.map((option, index) => (
+                <button
+                  key={option.value}
+                  onClick={() => handleSelect(option.value)}
+                  disabled={isAdvancing}
+                  className={`p-6 border-2 text-left transition-all rounded-lg ${
+                    answers[currentQuestion.id] === option.value
+                      ? "border-[#FB5010] bg-[#FB5010]/5"
+                      : `border-gray-200 ${
+                          isAdvancing ? "opacity-60 cursor-not-allowed" : "hover:border-gray-400"
+                        }`
+                  }`}
+                  role="radio"
+                  aria-checked={answers[currentQuestion.id] === option.value}
+                  aria-label={option.label}
+                  tabIndex={index === 0 ? 0 : -1}
+                >
+                  <span className="text-lg font-bold">{option.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Login Required Modal */}
-      <LoginRequiredModal isOpen={showLoginModal} onConfirm={handleLoginModalConfirm} />
-    </main>
+        {/* Login Required Modal */}
+        <LoginRequiredModal isOpen={showLoginModal} onConfirm={handleLoginModalConfirm} />
+      </main>
+    </>
   );
 }

@@ -1,22 +1,19 @@
 # robots.txt for 뭐입지 (ipzy-frontend)
-# Place this file at the root of your site: https://your-domain.com/robots.txt
+# Production URL: https://ipzy.vercel.app
 
 User-agent: *
 # Allow main site content
 Allow: /
 
 # Disallow non-indexable sections
-Disallow: /admin
 Disallow: /admin/
-Disallow: /admin/*
+Disallow: /mypage/
+Disallow: /payment/
+Disallow: /auth/
 Disallow: /dev/
-Disallow: /dev/validation
 Disallow: /error/
-Disallow: /error/500
-Disallow: /error/network
-Disallow: /not-found-page
 
-# If you host a sitemap, uncomment and set your absolute URL:
-# Sitemap: https://your-domain.com/sitemap.xml
+# Sitemap
+Sitemap: https://ipzy.vercel.app/sitemap.xml
 
 
