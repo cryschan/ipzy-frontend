@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, HomeIcon, RotateCcw } from "lucide-react";
+import { ArrowRight, HomeIcon, Loader2, RotateCcw } from "lucide-react";
 import { getStoredSession, regenerateRecommendations } from "../utils/quizApi";
 
 import { QUIZ_PATH } from "@/constants/navigation";
@@ -31,6 +32,7 @@ const mockResult = {
 
 export default function Result() {
   const navigate = useNavigate();
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const navigateToQuiz = async () => {
     try {
@@ -40,13 +42,22 @@ export default function Result() {
         navigate(QUIZ_PATH);
         return;
       }
+
+      // 로딩 시작
+      setIsRegenerating(true);
+
+      // 추천 재생성 요청
       await regenerateRecommendations(session.sessionId);
-      // 필요 시 로딩 화면으로 이동하여 진행 표시 가능
-      // navigate("/loading");
+
+      // 성공 시 로딩 페이지로 이동 (새로운 추천 결과 확인)
+      navigate("/loading");
     } catch (error) {
       console.error("추천 재생성 실패:", error);
-      // 실패 시에도 사용성 유지: 퀴즈로 돌아가 재시도 유도
-      // navigate("/quiz");
+      // 사용자에게 에러 알림
+      alert("추천을 다시 생성하는 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      // 로딩 종료 (navigate가 성공하면 이 컴포넌트가 언마운트되지만, 에러 시에는 필요)
+      setIsRegenerating(false);
     }
   };
 
@@ -140,17 +151,28 @@ export default function Result() {
             <div className="flex flex-col sm:flex-row gap-4 mt-6">
               <button
                 onClick={navigateToHome}
-                className="flex-1 flex items-center justify-center gap-2 border-2 border-[#1a1a1a] px-6 py-4 font-bold hover:bg-[#1a1a1a] hover:text-white transition-colors rounded-full"
+                disabled={isRegenerating}
+                className="flex-1 flex items-center justify-center gap-2 border-2 border-[#1a1a1a] px-6 py-4 font-bold hover:bg-[#1a1a1a] hover:text-white transition-colors rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <HomeIcon className="w-5 h-5" />
                 <span>홈으로 가기</span>
               </button>
               <button
                 onClick={navigateToQuiz}
-                className="flex-1 flex items-center justify-center gap-2 bg-[#FB5010] text-white px-6 py-4 font-bold hover:bg-[#E04600] transition-colors rounded-full"
+                disabled={isRegenerating}
+                className="flex-1 flex items-center justify-center gap-2 bg-[#FB5010] text-white px-6 py-4 font-bold hover:bg-[#E04600] transition-colors rounded-full disabled:opacity-75 disabled:cursor-not-allowed"
               >
-                <RotateCcw className="w-5 h-5" />
-                <span>다시 추천받기</span>
+                {isRegenerating ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>추천 생성 중...</span>
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="w-5 h-5" />
+                    <span>다시 추천받기</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

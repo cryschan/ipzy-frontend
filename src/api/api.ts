@@ -3,8 +3,7 @@ import axios from "axios";
 // 공용 axios 인스턴스
 // - baseURL: VITE_API_BASE_URL (기본값: http://localhost:8080)
 // - withCredentials: 세션/쿠키 기반 인증을 위해 쿠키를 자동 포함
-const API_BASE_URL =
-  (import.meta as any)?.env?.VITE_API_BASE_URL ?? "http://localhost:8080";
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL ?? "http://localhost:8080";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -37,18 +36,21 @@ api.interceptors.response.use(
       } catch {
         // ignore storage errors
       }
-      // 2) 경로에 따라 로그인 페이지로 이동
+      // 2) 리다이렉트 경로로 이동
       try {
         const currentPath = window.location?.pathname || "/";
         const isAdmin = currentPath.startsWith("/admin");
-        const loginPath = isAdmin ? "/admin/login" : "/login";
+        const redirectPath = isAdmin ? "/admin/login" : "/";
         // 콜백 루프 방지 및 불필요한 재이동 방지
-        if (currentPath !== "/auth/callback" && currentPath !== loginPath) {
+        if (currentPath !== "/auth/callback" && currentPath !== redirectPath) {
+          // 세션 만료 알럿 표시
+          alert("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
+
           if (!isAdmin) {
-            // 돌아갈 경로 저장(관리자 영역은 별도 처리)
+            // 나중에 로그인하면 돌아갈 경로 저장
             sessionStorage.setItem("postLoginRedirect", currentPath);
           }
-          window.location.replace(loginPath);
+          window.location.replace(redirectPath);
         }
       } catch {
         // ignore navigation errors
