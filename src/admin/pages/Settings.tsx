@@ -1,15 +1,15 @@
-import { useState } from "react";
-import { User, Bell, Shield, Database } from "lucide-react";
+import { User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Settings() {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState({
-    newUser: true,
-    newSubscription: true,
-    payment: true,
-    system: false,
-  });
+  // TODO: 알림 설정 기능 구현 후 활성화
+  // const [notifications, setNotifications] = useState({
+  //   newUser: true,
+  //   newSubscription: true,
+  //   payment: true,
+  //   system: false,
+  // });
 
   return (
     <div className="space-y-6">
@@ -48,7 +48,7 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Notifications */}
+        {/* TODO: 알림 설정 기능 구현 후 활성화
         <div className="bg-white rounded-2xl p-6 shadow-sm lg:col-span-2">
           <div className="flex items-center gap-2 mb-6">
             <Bell className="w-5 h-5 text-[#FB5010]" />
@@ -111,11 +111,11 @@ export default function Settings() {
             ))}
           </div>
         </div>
+*/}
       </div>
 
-      {/* System Info */}
+      {/* TODO: 보안 및 시스템 정보 기능 구현 후 활성화
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Security */}
         <div className="bg-white rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-6">
             <Shield className="w-5 h-5 text-[#FB5010]" />
@@ -148,7 +148,6 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* System */}
         <div className="bg-white rounded-2xl p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-6">
             <Database className="w-5 h-5 text-[#FB5010]" />
@@ -177,6 +176,7 @@ export default function Settings() {
           </div>
         </div>
       </div>
+*/}
     </div>
   );
 }
