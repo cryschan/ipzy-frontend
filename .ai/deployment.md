@@ -237,14 +237,26 @@ function App() {
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; base-uri 'self'; font-src 'self' data:; img-src 'self' data: https:; script-src 'self' 'unsafe-inline'; style-src 'self'; connect-src 'self' https: http:; frame-ancestors 'none'; form-action 'self'; object-src 'none'; manifest-src 'self'; upgrade-insecure-requests"
+        }
       ]
     }
   ]
 }
 ```
+
+> 참고: `X-XSS-Protection` 헤더는 최신 브라우저에서 더 이상 사용되지 않으므로 제거했습니다. JSON-LD 스키마(`index.html` 내 `<script type="application/ld+json">`)를 허용하기 위해 `script-src`에 제한적으로 `'unsafe-inline'`을 포함했습니다. 스테이징 환경에서 CSP 차단으로 기능이 깨지지 않는지 반드시 검증하세요.
+
+검증 체크리스트:
+- [ ] 스키마(웹앱/조직) JSON-LD가 크롤러에서 정상 인식되는지
+- [ ] 페이지 렌더/라우팅 정상 (/, /quiz, /pricing, /result)
+- [ ] API 통신 정상 (`connect-src` 정책으로 차단되지 않는지)
+- [ ] 외부 리소스 사용 시(추가될 경우) 해당 도메인 화이트리스트 반영
+
 
 #### ✅ 정적 파일 캐싱 (1년)
 ```json

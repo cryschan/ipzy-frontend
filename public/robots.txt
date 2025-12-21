@@ -6,6 +6,7 @@ User-agent: *
 Allow: /
 
 # Disallow non-indexable sections
+Disallow: /admin
 Disallow: /admin/
 Disallow: /mypage/
 Disallow: /payment/

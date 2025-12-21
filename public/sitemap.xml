@@ -1,37 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-
-  <!-- 홈페이지 -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Generated at build time: 2025-12-21T11:42:24.157Z -->
+  <!-- Intentionally omitted: /login, /auth/*, /admin/*, /mypage/*, /payment/*, /dev/*, /error/*, /loading -->
   <url>
     <loc>https://ipzy.vercel.app/</loc>
-    <lastmod>2025-12-19</lastmod>
-    <changefreq>daily</changefreq>
+    <lastmod>2025-12-21T11:28:54.123Z</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-
-  <!-- 퀴즈 페이지 -->
   <url>
     <loc>https://ipzy.vercel.app/quiz</loc>
-    <lastmod>2025-12-19</lastmod>
+    <lastmod>2025-12-21T11:28:54.124Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-
-  <!-- 가격 페이지 -->
   <url>
     <loc>https://ipzy.vercel.app/pricing</loc>
-    <lastmod>2025-12-19</lastmod>
+    <lastmod>2025-12-21T11:28:54.124Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-
-  <!-- 로그인 페이지 -->
   <url>
-    <loc>https://ipzy.vercel.app/login</loc>
-    <lastmod>2025-12-19</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://ipzy.vercel.app/result</loc>
+    <lastmod>2025-12-19T09:41:57.413Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
-
 </urlset>
