@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Ban, Calendar, CheckCircle, Crown, Mail, Shield, User } from "lucide-react";
-import {
-  type AdminUserDetailResponse,
-  changeUserStatus,
-  fetchUserDetail,
-} from "../../api/adminApi";
+import { ArrowLeft, Calendar, Crown, Mail, Shield } from "lucide-react";
+import { type AdminUserDetailResponse, fetchUserDetail } from "../../api/adminApi";
+import { formatDateKorean } from "../../utils/date";
 
 export default function UserDetail() {
   const navigate = useNavigate();
@@ -13,7 +10,8 @@ export default function UserDetail() {
   const [user, setUser] = useState<AdminUserDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [updating, setUpdating] = useState(false);
+  // TODO: 정지 기능 구현 후 활성화
+  // const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     async function loadUser() {
@@ -36,6 +34,7 @@ export default function UserDetail() {
     loadUser();
   }, [id]);
 
+  /* TODO: 정지 기능 구현 후 활성화
   const handleStatusChange = async (newStatus: "ACTIVE" | "SUSPENDED") => {
     if (!user || !id) return;
 
@@ -58,6 +57,7 @@ export default function UserDetail() {
 
     setUpdating(false);
   };
+  */
 
   if (loading) {
     return (
@@ -121,17 +121,14 @@ export default function UserDetail() {
             </div>
             <div className="flex items-center gap-3 text-sm">
               <Calendar className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-600">
-                가입일: {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}
-              </span>
+              <span className="text-gray-600">가입일: {formatDateKorean(user.createdAt)}</span>
             </div>
+            {/* TODO: 최근 접속 표시 방식 확정 후 활성화
             <div className="flex items-center gap-3 text-sm">
               <User className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-600">
-                최근 접속:{" "}
-                {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : "-"}
-              </span>
+              <span className="text-gray-600">최근 접속: {formatDateKorean(user.lastLoginAt)}</span>
             </div>
+*/}
             <div className="flex items-center gap-3 text-sm">
               <span className="text-gray-400 text-xs">Provider:</span>
               <span className="text-gray-600">{user.provider ?? "-"}</span>
@@ -155,7 +152,7 @@ export default function UserDetail() {
               </span>
             </div>
 
-            {/* Action Buttons */}
+            {/* TODO: 정지 기능 구현 후 활성화
             <div className="space-y-2">
               {user.status === "ACTIVE" ? (
                 <button
@@ -177,6 +174,7 @@ export default function UserDetail() {
                 </button>
               ) : null}
             </div>
+            */}
           </div>
         </div>
 
@@ -253,20 +251,22 @@ export default function UserDetail() {
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs text-gray-500">시작일</p>
-                  <p className="font-medium">
-                    {new Date(user.subscription.startDate).toLocaleDateString()}
-                  </p>
+                  <p className="font-medium">{formatDateKorean(user.subscription.startDate)}</p>
                 </div>
+                {/* TODO: 종료일 표시 방식 확정 후 활성화
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs text-gray-500">종료일</p>
                   <p className="font-medium">
-                    {new Date(user.subscription.endDate).toLocaleDateString()}
+                    {formatDateKorean(user.subscription.endDate)}
                   </p>
                 </div>
+*/}
+                {/* TODO: 자동 갱신 표시 방식 확정 후 활성화
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs text-gray-500">자동 갱신</p>
                   <p className="font-medium">{user.subscription.autoRenew ? "예" : "아니오"}</p>
                 </div>
+*/}
               </div>
             )}
           </div>

@@ -7,6 +7,7 @@ import {
   fetchDashboardStats,
   fetchUsers,
 } from "../../api/adminApi";
+import { formatDateKorean } from "../../utils/date";
 import StatsCard from "../components/StatsCard";
 
 export default function Dashboard() {
@@ -233,7 +234,7 @@ export default function Dashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}
+                    {formatDateKorean(user.createdAt)}
                   </td>
                 </tr>
               ))}

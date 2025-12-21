@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Download, Filter, Search } from "lucide-react";
+import { Filter, Search } from "lucide-react";
 import {
   type AdminUserResponse,
   type AdminUserSearchParams,
   fetchUsers,
   type UserStatus,
 } from "../../api/adminApi";
+import { formatDateKorean } from "../../utils/date";
 import DataTable from "../components/DataTable";
 
 export default function UserList() {
@@ -131,9 +132,7 @@ export default function UserList() {
       key: "createdAt",
       label: "가입일",
       render: (user: AdminUserResponse) => (
-        <span className="text-gray-500">
-          {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}
-        </span>
+        <span className="text-gray-500">{formatDateKorean(user.createdAt)}</span>
       ),
     },
   ];
@@ -154,10 +153,12 @@ export default function UserList() {
           <h1 className="text-2xl font-black text-gray-800">회원 관리</h1>
           <p className="text-gray-500 mt-1">총 {totalElements.toLocaleString()}명의 회원</p>
         </div>
+        {/* TODO: CSV 내보내기 기능 구현 후 활성화
         <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
           <Download className="w-4 h-4" />
           <span>CSV 내보내기</span>
         </button>
+*/}
       </div>
 
       {/* Filters */}
@@ -187,7 +188,9 @@ export default function UserList() {
             >
               <option value="all">모든 상태</option>
               <option value="ACTIVE">활성</option>
+              {/* TODO: 정지 기능 구현 후 활성화
               <option value="SUSPENDED">정지</option>
+              */}
               <option value="DELETED">삭제</option>
             </select>
           </div>
