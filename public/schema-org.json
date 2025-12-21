@@ -1,0 +1,7 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "뭐입지",
+  "url": "https://ipzy.vercel.app",
+  "logo": "https://ipzy.vercel.app/logo.png"
+}

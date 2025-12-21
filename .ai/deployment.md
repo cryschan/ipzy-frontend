@@ -16,6 +16,7 @@
 ### 1. 기본 SEO 메타 태그 (`index.html`)
 
 #### Primary 메타 태그
+
 - ✅ `lang="ko"` - 한국어 설정
 - ✅ `title` - "뭐입지 - AI 코디 추천 서비스"
 - ✅ `description` - 서비스 설명
@@ -23,6 +24,7 @@
 - ✅ `theme-color` - 브랜드 컬러 (#FB5010)
 
 #### Open Graph 태그 (소셜 공유)
+
 ```html
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://ipzy.vercel.app/" />
@@ -34,6 +36,7 @@
 ```
 
 #### Twitter 카드 태그
+
 ```html
 <meta property="twitter:card" content="summary_large_image" />
 <meta property="twitter:title" content="뭐입지 - AI 코디 추천 서비스" />
@@ -41,6 +44,7 @@
 ```
 
 #### 검색엔진 최적화
+
 ```html
 <meta name="robots" content="index, follow" />
 <meta name="googlebot" content="index, follow" />
@@ -52,35 +56,37 @@
 ### 2. 구조화된 데이터 (Schema.org)
 
 #### ✅ WebApplication 스키마 (`index.html:38-53`)
+
 ```html
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "뭐입지",
-  "url": "https://ipzy.vercel.app",
-  "description": "4가지 질문으로 찾는 나만의 스타일. AI가 추천하는 무신사 코디",
-  "applicationCategory": "LifestyleApplication",
-  "operatingSystem": "Web",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "KRW"
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "뭐입지",
+    "url": "https://ipzy.vercel.app",
+    "description": "4가지 질문으로 찾는 나만의 스타일. AI가 추천하는 무신사 코디",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "KRW"
+    }
   }
-}
 </script>
 ```
 
 #### ✅ Organization 스키마 (`index.html:54-62`)
+
 ```html
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "뭐입지",
-  "url": "https://ipzy.vercel.app",
-  "logo": "https://ipzy.vercel.app/logo.png"
-}
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "뭐입지",
+    "url": "https://ipzy.vercel.app",
+    "logo": "https://ipzy.vercel.app/logo.png"
+  }
 </script>
 ```
 
@@ -89,6 +95,7 @@
 ### 3. 검색 엔진 크롤링 파일
 
 #### ✅ robots.txt (`public/robots.txt`)
+
 ```txt
 User-agent: *
 Allow: /
@@ -103,6 +110,7 @@ Sitemap: https://ipzy.vercel.app/sitemap.xml
 ```
 
 #### ✅ sitemap.xml (`public/sitemap.xml`)
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -124,12 +132,6 @@ Sitemap: https://ipzy.vercel.app/sitemap.xml
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>
-    <loc>https://ipzy.vercel.app/login</loc>
-    <lastmod>2025-12-19</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
 </urlset>
 ```
 
@@ -138,11 +140,13 @@ Sitemap: https://ipzy.vercel.app/sitemap.xml
 ### 4. 페이지별 동적 SEO
 
 #### ✅ react-helmet-async 설치 및 설정
+
 ```bash
 npm install react-helmet-async --legacy-peer-deps
 ```
 
 #### ✅ SEO 컴포넌트 생성 (`src/components/SEO.tsx`)
+
 ```typescript
 import { Helmet } from 'react-helmet-async';
 
@@ -189,6 +193,7 @@ export default function SEO({
 ```
 
 #### ✅ App.tsx에 HelmetProvider 추가
+
 ```typescript
 import { HelmetProvider } from 'react-helmet-async';
 
@@ -206,6 +211,7 @@ function App() {
 ```
 
 #### ✅ 주요 페이지 SEO 적용
+
 - **홈 페이지** (`src/pages/Home.tsx`): 기본 메타 태그
 - **퀴즈 페이지** (`src/pages/Quiz.tsx`): "AI 코디 퀴즈 - 뭐입지"
 - **가격 페이지** (`src/pages/Pricing.tsx`): "가격 안내 - 뭐입지"
@@ -215,6 +221,7 @@ function App() {
 ### 5. Vercel 설정 파일 (`vercel.json`)
 
 #### ✅ SPA 라우팅 설정
+
 모든 경로를 `index.html`로 리다이렉트하여 클라이언트 사이드 라우팅 지원:
 
 ```json
@@ -229,6 +236,7 @@ function App() {
 ```
 
 #### ✅ 보안 헤더
+
 ```json
 {
   "headers": [
@@ -241,7 +249,7 @@ function App() {
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; font-src 'self' data:; img-src 'self' data: https:; script-src 'self' 'unsafe-inline'; style-src 'self'; connect-src 'self' https: http:; frame-ancestors 'none'; form-action 'self'; object-src 'none'; manifest-src 'self'; upgrade-insecure-requests"
+          "value": "default-src 'self'; base-uri 'self'; font-src 'self' data:; img-src 'self' data: https:; script-src 'self'; style-src 'self'; connect-src 'self' https: http:; frame-ancestors 'none'; form-action 'self'; object-src 'none'; manifest-src 'self'; upgrade-insecure-requests"
         }
       ]
     }
@@ -249,16 +257,18 @@ function App() {
 }
 ```
 
-> 참고: `X-XSS-Protection` 헤더는 최신 브라우저에서 더 이상 사용되지 않으므로 제거했습니다. JSON-LD 스키마(`index.html` 내 `<script type="application/ld+json">`)를 허용하기 위해 `script-src`에 제한적으로 `'unsafe-inline'`을 포함했습니다. 스테이징 환경에서 CSP 차단으로 기능이 깨지지 않는지 반드시 검증하세요.
+> 참고: `X-XSS-Protection` 헤더는 최신 브라우저에서 더 이상 사용되지 않으므로 제거했습니다.  
+> JSON-LD 스키마는 `public/schema-webapp.json`, `public/schema-org.json`으로 분리하고, `index.html`에서 `src`로 로드하도록 변경하여 `script-src 'self'`만으로 동작합니다. 스테이징에서 CSP 차단으로 기능이 깨지지 않는지 검증하세요.
 
 검증 체크리스트:
+
 - [ ] 스키마(웹앱/조직) JSON-LD가 크롤러에서 정상 인식되는지
 - [ ] 페이지 렌더/라우팅 정상 (/, /quiz, /pricing, /result)
 - [ ] API 통신 정상 (`connect-src` 정책으로 차단되지 않는지)
 - [ ] 외부 리소스 사용 시(추가될 경우) 해당 도메인 화이트리스트 반영
 
-
 #### ✅ 정적 파일 캐싱 (1년)
+
 ```json
 {
   "source": "/(.*)\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)",
@@ -276,6 +286,7 @@ function App() {
 ### 6. 빌드 최적화 (`vite.config.ts`)
 
 #### ✅ 코드 스플리팅 (manualChunks)
+
 ```typescript
 export default defineConfig({
   plugins: [react()],
@@ -304,6 +315,7 @@ export default defineConfig({
 ```
 
 **빌드 결과**:
+
 ```
 dist/index.html                         3.31 kB │ gzip:   1.05 kB
 dist/assets/index-Rim25Oj4.css         50.75 kB │ gzip:   9.54 kB
@@ -319,6 +331,7 @@ dist/assets/index-BgbRj7Yc.js         380.74 kB │ gzip: 106.16 kB
 ### 7. 세션 만료 처리 (`src/api/api.ts`)
 
 #### ✅ 401/419 응답 시 자동 처리
+
 ```typescript
 // 세션 만료 알럿 표시
 alert("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
@@ -342,6 +355,7 @@ window.location.replace(redirectPath);
    - Connect Git Repository → GitHub 저장소 선택
 
 2. **자동 배포 규칙**
+
    ```
    main 브랜치 → 프로덕션 (https://ipzy.vercel.app)
    feature/* 브랜치 → 미리보기 배포 (고유 URL)
@@ -355,6 +369,7 @@ window.location.replace(redirectPath);
 #### 개발 워크플로우
 
 **일반 개발**:
+
 ```bash
 # 1. 기능 브랜치 생성
 git checkout -b feature/new-feature
@@ -369,6 +384,7 @@ git push origin feature/new-feature
 ```
 
 **프로덕션 배포**:
+
 ```bash
 # 3. PR 생성 및 병합
 gh pr create --title "새 기능 추가" --base main
@@ -427,6 +443,7 @@ Credentials: true (쿠키/세션 사용 시)
 ```
 
 **Spring Boot 예시**:
+
 ```java
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -446,12 +463,14 @@ public class WebConfig implements WebMvcConfigurer {
 ### 3. OAuth 리다이렉트 URL 업데이트
 
 #### 카카오 개발자 콘솔
+
 1. https://developers.kakao.com/ 접속
 2. 내 애플리케이션 → 앱 선택
 3. 제품 설정 → 카카오 로그인 → Redirect URI 설정
 4. 추가: `https://ipzy.vercel.app/auth/callback`
 
 #### 구글 Cloud Console
+
 1. https://console.cloud.google.com/ 접속
 2. API 및 서비스 → 사용자 인증 정보
 3. OAuth 2.0 클라이언트 ID 선택
@@ -503,11 +522,13 @@ public class WebConfig implements WebMvcConfigurer {
 브랜드 파비콘으로 교체:
 
 **현재 설정** (`index.html`):
+
 ```html
 <link rel="icon" type="image/svg+xml" href="/vite.svg" />
 ```
 
 **권장 파일**:
+
 ```
 public/favicon.ico (32x32, 16x16 멀티사이즈)
 public/favicon.svg (벡터)
@@ -515,6 +536,7 @@ public/apple-touch-icon.png (180x180, iOS용)
 ```
 
 **업데이트** (`index.html`):
+
 ```html
 <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -526,11 +548,13 @@ public/apple-touch-icon.png (180x180, iOS용)
 ### 2. 성능 모니터링
 
 #### Vercel Analytics (권장)
+
 1. Vercel Dashboard → Analytics 탭
 2. Enable Analytics
 3. 무료 플랜: 2,500 이벤트/월
 
 #### Google Analytics (선택)
+
 1. https://analytics.google.com/ 에서 GA4 속성 생성
 2. 측정 ID 확인 (G-XXXXXXXXXX)
 3. `index.html`에 추가:
@@ -539,7 +563,9 @@ public/apple-touch-icon.png (180x180, iOS용)
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag() { dataLayer.push(arguments); }
+  function gtag() {
+    dataLayer.push(arguments);
+  }
   gtag("js", new Date());
   gtag("config", "G-XXXXXXXXXX");
 </script>
@@ -554,6 +580,7 @@ npm install @sentry/react
 ```
 
 `src/main.tsx`에 추가:
+
 ```typescript
 import * as Sentry from "@sentry/react";
 
@@ -615,6 +642,7 @@ Sentry.init({
 **원인**: Vercel은 빌드 시점에 환경 변수를 주입합니다.
 
 **해결**:
+
 1. Vercel Dashboard에서 환경 변수 확인
 2. Deployments → 최신 배포 → Redeploy
 3. 또는 새로운 커밋 푸시
@@ -626,6 +654,7 @@ Sentry.init({
 **원인**: `vercel.json`의 rewrites 설정 누락
 
 **해결**:
+
 ```json
 {
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
@@ -639,6 +668,7 @@ Sentry.init({
 **원인**: 백엔드에서 프론트엔드 도메인 미허용
 
 **해결**:
+
 - 백엔드 CORS 설정에 `https://ipzy.vercel.app` 추가
 - `allowCredentials: true` 설정 (쿠키 사용 시)
 
@@ -649,6 +679,7 @@ Sentry.init({
 **원인**: 리다이렉트 URI 미등록
 
 **해결**:
+
 - 카카오/구글 개발자 콘솔에서 `https://ipzy.vercel.app/auth/callback` 등록
 - 정확한 URL 확인 (trailing slash 주의)
 
@@ -659,6 +690,7 @@ Sentry.init({
 **원인**: TypeScript 타입 에러, ESLint 에러
 
 **해결**:
+
 ```bash
 # 로컬에서 빌드 테스트
 npm run build
@@ -692,17 +724,20 @@ npm run lint
 ## 📚 참고 자료
 
 ### 공식 문서
+
 - Vercel 공식 문서: https://vercel.com/docs
 - Vite 배포 가이드: https://vitejs.dev/guide/static-deploy.html
 - React Helmet Async: https://github.com/staylor/react-helmet-async
 
 ### SEO 관련
+
 - Google SEO 가이드: https://developers.google.com/search/docs
 - Open Graph 프로토콜: https://ogp.me/
 - Schema.org: https://schema.org/
 - Naver 웹마스터: https://searchadvisor.naver.com/
 
 ### 성능 측정
+
 - PageSpeed Insights: https://pagespeed.web.dev/
 - Lighthouse: Chrome DevTools
 - Web Vitals: https://web.dev/vitals/
