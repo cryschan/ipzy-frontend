@@ -202,12 +202,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // 앱 초기 로드 시 서버 세션으로 사용자 동기화
+  // 다중 탭 로그아웃 동기화: 다른 탭에서 로그아웃 시 현재 탭도 로그아웃
   useEffect(() => {
-    if (!user) {
-      void refreshUserFromServer();
-    }
-  }, [user, refreshUserFromServer]);
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "auth_logout_event") {
+        setUser(null);
+        const isAdminPage = window.location.pathname.startsWith("/admin");
+        window.location.replace(isAdminPage ? "/admin/login" : "/");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const socialLogin = async (provider: "google" | "kakao"): Promise<boolean> => {
     // 모의 소셜 로그인
@@ -285,6 +292,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
         removePrefixed(localStorage, "auth_");
         removePrefixed(sessionStorage, "auth_");
+
+        // 다른 탭에 로그아웃 알림
+        localStorage.setItem("auth_logout_event", Date.now().toString());
+        localStorage.removeItem("auth_logout_event");
       } catch {
         // ignore storage errors
       }
