@@ -12,7 +12,13 @@ import Settings from "./admin/pages/Settings";
 import Subscriptions from "./admin/pages/Subscriptions";
 import UserDetail from "./admin/pages/UserDetail";
 import UserList from "./admin/pages/UserList";
-import { AdminRoute, GuestRoute, ProtectedRoute, QuizRequiredRoute } from "./components/RouteGuard";
+import {
+  AdminGuestRoute,
+  AdminRoute,
+  GuestRoute,
+  ProtectedRoute,
+  QuizRequiredRoute,
+} from "./components/RouteGuard";
 import ScrollToTop from "./components/ScrollToTop";
 import { AuthProvider } from "./context/AuthContext";
 import AccountManagement from "./pages/AccountManagement";
@@ -64,7 +70,9 @@ function App() {
             </Route>
 
             {/* 관리자 페이지 */}
-            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route element={<AdminGuestRoute />}>
+              <Route path="/admin/login" element={<AdminLogin />} />
+            </Route>
             <Route element={<AdminRoute />}>
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Navigate to="/admin/dashboard" replace />} />

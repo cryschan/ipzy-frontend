@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-
+import type { ReactNode } from "react";
 import { useAuth } from "../context/AuthContext";
 
 interface RouteGuardProps {
@@ -59,6 +58,31 @@ export function QuizRequiredRoute({ children }: RouteGuardProps) {
   }
 
   // 하위 라우팅(Outlet) 패턴 지원: children이 없으면 Outlet 렌더
+  return children ? <>{children}</> : <Outlet />;
+}
+
+// 관리자 로그인 상태에서 접근 불가 (관리자 로그인 페이지)
+export function AdminGuestRoute({ children, redirectTo = "/admin/dashboard" }: RouteGuardProps) {
+  const { user, isAdmin, refreshAdminFromServer } = useAuth();
+  const attemptedRef = useRef(false);
+  const [loading, setLoading] = useState(() => !user);
+
+  useEffect(() => {
+    if (!user && !attemptedRef.current) {
+      attemptedRef.current = true;
+      void refreshAdminFromServer().finally(() => setLoading(false));
+    }
+  }, [user, refreshAdminFromServer]);
+
+  if (loading) {
+    return null;
+  }
+
+  // 이미 관리자로 로그인된 상태면 대시보드로 리다이렉트
+  if (user && isAdmin()) {
+    return <Navigate to={redirectTo} replace />;
+  }
+
   return children ? <>{children}</> : <Outlet />;
 }
 
