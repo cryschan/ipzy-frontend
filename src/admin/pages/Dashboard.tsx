@@ -1,24 +1,63 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, Crown, Wallet, Zap, ChevronRight, UserPlus, CreditCard, Heart } from "lucide-react";
+import { ChevronRight, UserCheck, UserPlus, Users, Zap } from "lucide-react";
+import {
+  type AdminDashboardResponse,
+  type AdminUserResponse,
+  fetchDashboardStats,
+  fetchUsers,
+} from "../../api/adminApi";
+import { formatDateKorean } from "../../utils/date";
 import StatsCard from "../components/StatsCard";
-import { mockStats, mockPlanDistribution, mockActivities, mockUsers } from "../utils/mockData";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [stats, setStats] = useState<AdminDashboardResponse | null>(null);
+  const [recentUsers, setRecentUsers] = useState<AdminUserResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const activityIcons = {
-    signup: UserPlus,
-    subscription: Crown,
-    recommendation: Heart,
-    payment: CreditCard,
-  };
+  useEffect(() => {
+    async function loadDashboardData() {
+      setLoading(true);
+      setError(null);
 
-  const activityColors = {
-    signup: "bg-green-100 text-green-600",
-    subscription: "bg-purple-100 text-purple-600",
-    recommendation: "bg-pink-100 text-pink-600",
-    payment: "bg-blue-100 text-blue-600",
-  };
+      const [statsResult, usersResult] = await Promise.all([
+        fetchDashboardStats(),
+        fetchUsers({ size: 5, sort: "createdAt,desc" }),
+      ]);
+
+      if (statsResult.success && statsResult.data) {
+        setStats(statsResult.data);
+      } else {
+        setError(statsResult.error?.message ?? "통계 조회 실패");
+      }
+
+      if (usersResult.success && usersResult.data) {
+        setRecentUsers(usersResult.data.content);
+      }
+
+      setLoading(false);
+    }
+
+    loadDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500">로딩 중...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -32,29 +71,25 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
           title="총 회원"
-          value={mockStats.totalUsers.toLocaleString() + "명"}
-          change={mockStats.totalUsersChange}
+          value={(stats?.userStats.totalUsers ?? 0).toLocaleString() + "명"}
           icon={Users}
           color="orange"
         />
         <StatsCard
-          title="활성 구독"
-          value={mockStats.activeSubscriptions.toLocaleString() + "명"}
-          change={mockStats.activeSubscriptionsChange}
-          icon={Crown}
+          title="활성 회원"
+          value={(stats?.userStats.activeUsers ?? 0).toLocaleString() + "명"}
+          icon={UserCheck}
           color="purple"
         />
         <StatsCard
-          title="이번 달 매출"
-          value={"₩" + (mockStats.monthlyRevenue / 10000).toFixed(1) + "만"}
-          change={mockStats.monthlyRevenueChange}
-          icon={Wallet}
+          title="이번달 신규 가입"
+          value={(stats?.userStats.newUsersThisMonth ?? 0).toLocaleString() + "명"}
+          icon={UserPlus}
           color="green"
         />
         <StatsCard
-          title="오늘 추천"
-          value={mockStats.todayRecommendations.toLocaleString() + "건"}
-          change={mockStats.todayRecommendationsChange}
+          title="이번달 추천"
+          value={(stats?.recommendationStats.recommendationsThisMonth ?? 0).toLocaleString() + "건"}
           icon={Zap}
           color="blue"
         />
@@ -62,84 +97,57 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Plan Distribution */}
+        {/* Quiz Stats */}
         <div className="bg-white rounded-2xl p-6 shadow-sm">
-          <h3 className="font-bold text-gray-800 mb-4">플랜 분포</h3>
+          <h3 className="font-bold text-gray-800 mb-4">퀴즈 통계</h3>
           <div className="space-y-4">
-            {/* Free */}
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-600">Free</span>
-                <span className="font-medium">{mockPlanDistribution.free.count}명 ({mockPlanDistribution.free.percentage}%)</span>
-              </div>
-              <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gray-400 rounded-full"
-                  style={{ width: `${mockPlanDistribution.free.percentage}%` }}
-                />
-              </div>
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+              <span className="text-gray-600">전체 세션</span>
+              <span className="font-bold text-gray-800">
+                {(stats?.quizStats.totalSessions ?? 0).toLocaleString()}회
+              </span>
             </div>
-            {/* Basic */}
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-600">Basic</span>
-                <span className="font-medium">{mockPlanDistribution.basic.count}명 ({mockPlanDistribution.basic.percentage}%)</span>
-              </div>
-              <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-blue-500 rounded-full"
-                  style={{ width: `${mockPlanDistribution.basic.percentage}%` }}
-                />
-              </div>
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+              <span className="text-gray-600">완료된 세션</span>
+              <span className="font-bold text-gray-800">
+                {(stats?.quizStats.completedSessions ?? 0).toLocaleString()}회
+              </span>
             </div>
-            {/* Pro */}
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-600">Pro</span>
-                <span className="font-medium">{mockPlanDistribution.pro.count}명 ({mockPlanDistribution.pro.percentage}%)</span>
-              </div>
-              <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#FB5010] rounded-full"
-                  style={{ width: `${mockPlanDistribution.pro.percentage}%` }}
-                />
-              </div>
+            <div className="flex justify-between items-center py-3">
+              <span className="text-gray-600">완료율</span>
+              <span className="font-bold text-[#FB5010]">
+                {(stats?.quizStats.completionRate ?? 0).toFixed(1)}%
+              </span>
             </div>
           </div>
 
-          {/* Summary */}
-          <div className="mt-6 pt-4 border-t border-gray-100">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">유료 전환율</span>
-              <span className="font-bold text-[#FB5010]">
-                {((mockPlanDistribution.basic.count + mockPlanDistribution.pro.count) / mockStats.totalUsers * 100).toFixed(1)}%
-              </span>
+          {/* Progress Bar */}
+          <div className="mt-4">
+            <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#FB5010] rounded-full transition-all"
+                style={{ width: `${stats?.quizStats.completionRate ?? 0}%` }}
+              />
             </div>
           </div>
         </div>
 
-        {/* Recent Activity */}
+        {/* Recommendation Stats */}
         <div className="bg-white rounded-2xl p-6 shadow-sm lg:col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-gray-800">최근 활동</h3>
-            <button className="text-sm text-[#FB5010] hover:underline">전체보기</button>
-          </div>
-          <div className="space-y-4">
-            {mockActivities.map((activity) => {
-              const Icon = activityIcons[activity.type];
-              const colorClass = activityColors[activity.type];
-              return (
-                <div key={activity.id} className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-800">{activity.message}</p>
-                    <p className="text-xs text-gray-400">{activity.timestamp}</p>
-                  </div>
-                </div>
-              );
-            })}
+          <h3 className="font-bold text-gray-800 mb-4">추천 통계</h3>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="text-center p-6 bg-gray-50 rounded-xl">
+              <p className="text-3xl font-black text-gray-800">
+                {(stats?.recommendationStats.totalRecommendations ?? 0).toLocaleString()}
+              </p>
+              <p className="text-sm text-gray-500 mt-2">전체 추천 수</p>
+            </div>
+            <div className="text-center p-6 bg-[#FB5010]/5 rounded-xl">
+              <p className="text-3xl font-black text-[#FB5010]">
+                {(stats?.recommendationStats.recommendationsThisMonth ?? 0).toLocaleString()}
+              </p>
+              <p className="text-sm text-gray-500 mt-2">이번달 추천 수</p>
+            </div>
           </div>
         </div>
       </div>
@@ -160,44 +168,74 @@ export default function Dashboard() {
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">이름</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">이메일</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">플랜</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">가입일</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  이름
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  이메일
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  플랜
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  상태
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  가입일
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {mockUsers.slice(0, 5).map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => navigate(`/admin/users/${user.id}`)}>
+              {recentUsers.map((user) => (
+                <tr
+                  key={user.id}
+                  className="hover:bg-gray-50 cursor-pointer"
+                  onClick={() => navigate(`/admin/users/${user.id}`)}
+                >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-[#FB5010] rounded-full flex items-center justify-center text-white text-sm font-medium">
-                        {user.name.charAt(0)}
+                        {user.name?.charAt(0) ?? "?"}
                       </div>
-                      <span className="font-medium text-gray-800">{user.name}</span>
+                      <span className="font-medium text-gray-800">{user.name ?? "-"}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {user.email}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      user.plan === "pro" ? "bg-[#FB5010]/10 text-[#FB5010]" :
-                      user.plan === "basic" ? "bg-blue-100 text-blue-600" :
-                      "bg-gray-100 text-gray-600"
-                    }`}>
-                      {user.plan.toUpperCase()}
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        user.planName === "PRO"
+                          ? "bg-[#FB5010]/10 text-[#FB5010]"
+                          : user.planName === "BASIC"
+                            ? "bg-blue-100 text-blue-600"
+                            : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      {user.planName ?? "FREE"}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      user.status === "active" ? "bg-green-100 text-green-600" :
-                      user.status === "suspended" ? "bg-red-100 text-red-600" :
-                      "bg-gray-100 text-gray-600"
-                    }`}>
-                      {user.status === "active" ? "활성" : user.status === "suspended" ? "정지" : "비활성"}
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        user.status === "ACTIVE"
+                          ? "bg-green-100 text-green-600"
+                          : user.status === "SUSPENDED"
+                            ? "bg-red-100 text-red-600"
+                            : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      {user.status === "ACTIVE"
+                        ? "활성"
+                        : user.status === "SUSPENDED"
+                          ? "정지"
+                          : "삭제"}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.createdAt}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatDateKorean(user.createdAt)}
+                  </td>
                 </tr>
               ))}
             </tbody>

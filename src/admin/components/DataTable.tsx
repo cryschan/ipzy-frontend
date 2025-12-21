@@ -19,7 +19,7 @@ interface DataTableProps<T> {
   onRowClick?: (item: T) => void;
 }
 
-export default function DataTable<T extends { id: string }>({
+export default function DataTable<T extends { id: string | number }>({
   data,
   columns,
   loading = false,
@@ -80,7 +80,7 @@ export default function DataTable<T extends { id: string }>({
                   >
                     {column.render
                       ? column.render(item)
-                      : (item as Record<string, unknown>)[column.key] as ReactNode}
+                      : ((item as Record<string, unknown>)[column.key] as ReactNode)}
                   </td>
                 ))}
               </tr>
@@ -110,9 +110,7 @@ export default function DataTable<T extends { id: string }>({
                   key={page}
                   onClick={() => onPageChange(page)}
                   className={`w-10 h-10 rounded-lg font-medium transition-colors ${
-                    currentPage === page
-                      ? "bg-[#FB5010] text-white"
-                      : "hover:bg-gray-100"
+                    currentPage === page ? "bg-[#FB5010] text-white" : "hover:bg-gray-100"
                   }`}
                 >
                   {page}
