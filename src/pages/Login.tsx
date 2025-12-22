@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { socialLogin, logout } = useAuth();
+  const { socialLogin } = useAuth();
 
   // 로그인 후 원래 페이지로 이동
   const from = location.state?.from || "/";
@@ -69,7 +69,7 @@ export default function Login() {
             </button>
             <button
               type="button"
-              onClick={async () => {
+              onClick={() => {
                 // OAuth 리다이렉트 후 돌아올 경로 저장
                 // 퀴즈 완료 후 로그인하는 경우 기존 postLoginRedirect 유지
                 const existingRedirect = sessionStorage.getItem("postLoginRedirect");
@@ -77,7 +77,6 @@ export default function Login() {
                 if (!existingRedirect || !pendingQuiz) {
                   sessionStorage.setItem("postLoginRedirect", from);
                 }
-                await logout();
                 redirectToKakaoLogin();
               }}
               className="w-full flex items-center justify-center gap-3 bg-[#FEE500] py-3 font-medium hover:bg-[#FDD800] transition-colors rounded-full"
