@@ -249,7 +249,7 @@ function App() {
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; font-src 'self' data:; img-src 'self' data: https:; script-src 'self'; style-src 'self'; connect-src 'self' https: http:; frame-ancestors 'none'; form-action 'self'; object-src 'none'; manifest-src 'self'; upgrade-insecure-requests"
+          "value": "default-src 'self'; base-uri 'self'; font-src 'self' data:; img-src 'self' data: https:; script-src 'self' 'sha256-3Y7vMnll7IN/K5jBROzTww3qUNBZsijMh578IW3GKxE=' 'sha256-CQ7wi/abxhfyhGbLe4lxpnG0azaZnJ2YzDGBaxJ/KPY='; style-src 'self'; connect-src 'self' https: http:; frame-ancestors 'none'; form-action 'self'; object-src 'none'; manifest-src 'self'; upgrade-insecure-requests"
         }
       ]
     }
@@ -258,7 +258,7 @@ function App() {
 ```
 
 > 참고: `X-XSS-Protection` 헤더는 최신 브라우저에서 더 이상 사용되지 않으므로 제거했습니다.  
-> JSON-LD 스키마는 `public/schema-webapp.json`, `public/schema-org.json`으로 분리하고, `index.html`에서 `src`로 로드하도록 변경하여 `script-src 'self'`만으로 동작합니다. 스테이징에서 CSP 차단으로 기능이 깨지지 않는지 검증하세요.
+> JSON-LD는 `index.html`에 인라인으로 포함되며, 해당 블록에 대한 SHA-256 해시를 `script-src`에 추가하여 `'unsafe-inline'` 없이 동작합니다. 인라인 JSON-LD 내용을 변경하면 해시도 반드시 갱신해야 합니다.
 
 검증 체크리스트:
 

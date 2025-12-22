@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Generated at build time: 2025-12-21T11:57:09.662Z -->
+  <!-- Generated at build time: 2025-12-22T01:05:18.610Z -->
   <!-- Intentionally omitted: /login, /auth/*, /admin/*, /mypage/*, /payment/*, /dev/*, /error/*, /loading -->
   <url>
     <loc>https://ipzy.vercel.app/</loc>

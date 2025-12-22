@@ -44,8 +44,27 @@
     <link rel="canonical" href="https://ipzy.vercel.app/" />
 
     <!-- Structured Data (Schema.org) -->
-    <script type="application/ld+json" src="/schema-webapp.json"></script>
-    <script type="application/ld+json" src="/schema-org.json"></script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "뭐입지",
+        "url": "https://ipzy.vercel.app",
+        "description": "4가지 질문으로 찾는 나만의 스타일. AI가 추천하는 무신사 코디",
+        "applicationCategory": "LifestyleApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "뭐입지",
+        "url": "https://ipzy.vercel.app",
+        "logo": "https://ipzy.vercel.app/logo.png"
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
