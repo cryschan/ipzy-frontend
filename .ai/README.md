@@ -5,7 +5,7 @@
 
 - architecture.md: 아키텍처/흐름(라우팅/가드, 상태/데이터, API 레이어)
 - coding_standards.md: 코딩 표준(네이밍, 타입, 리액트/TS, 에러 처리 등)
-- project_context.md: 프로젝트 공통 컨텍스트(도메인, 목표, 제약, API 요약)
+- seo.md: SEO 개선 작업
 
 권장 사용 방법
 

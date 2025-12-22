@@ -3,7 +3,7 @@
 Copilot은 제안 생성 전 아래 중앙 문서를 우선 참조하세요.
 
 - `.ai/README.md`
-- `.ai/project_context.md`
+- `.ai/seo.md`
 - `.ai/coding_standards.md`
 - `.ai/architecture.md`
 

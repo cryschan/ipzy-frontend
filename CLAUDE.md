@@ -3,7 +3,7 @@
 이 저장소는 중앙 AI 설정을 `.ai/` 폴더에 유지합니다. Claude/Code 도구는 아래 문서를 우선 참조해 응답/코드 제안을 생성하세요.
 
 - `.ai/README.md`
-- `.ai/project_context.md`
+- `.ai/seo.md`
 - `.ai/coding_standards.md`
 - `.ai/architecture.md`
 
