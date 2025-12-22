@@ -6,9 +6,7 @@ import SEO from "../components/SEO";
 import { useAuth } from "../context/AuthContext";
 import {
   clearStoredSession,
-  completeQuizSession,
   fetchQuestions,
-  generateRecommendations,
   getDefaultQuizId,
   getStoredSession,
   type Question,
@@ -30,6 +28,7 @@ export default function Quiz() {
   const advancingRef = useRef(false);
   const advanceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentStepRef = useRef(0);
+  const navigatingToLoadingRef = useRef(false);
 
   useEffect(() => {
     currentStepRef.current = currentStep;
@@ -74,7 +73,18 @@ export default function Quiz() {
     if (!isRestored) return;
 
     const pendingAnswers = sessionStorage.getItem("pendingQuizAnswers");
-    if (!pendingAnswers) return;
+    const postLoginRedirect = sessionStorage.getItem("postLoginRedirect");
+
+    // 실제 로그인 플로우 중인지 확인 (pendingAnswers + postLoginRedirect 둘 다 있어야 함)
+    const isInLoginFlow = pendingAnswers && postLoginRedirect === "/loading";
+
+    if (!isInLoginFlow) {
+      // 로그인 플로우가 아니면 stale 데이터 정리
+      if (pendingAnswers) {
+        sessionStorage.removeItem("pendingQuizAnswers");
+      }
+      return;
+    }
 
     if (user) {
       // 케이스 3: 로그인 완료 + 저장된 답변 있음 → 바로 Loading으로
@@ -155,23 +165,8 @@ export default function Quiz() {
           return;
         }
 
-        // 로그인 사용자: 세션 완료 처리 후 로딩 페이지로 이동
-        try {
-          const session = getStoredSession();
-          if (session) {
-            await completeQuizSession(session.sessionId);
-            // 완료 성공 시 추천 생성 트리거
-            try {
-              await generateRecommendations(session.sessionId);
-            } catch (genError) {
-              // 추천 생성 실패는 사용자 흐름을 막지 않음
-              console.error("추천 생성 요청 실패:", genError);
-            }
-          }
-        } catch (error) {
-          console.error("세션 완료 실패:", error);
-          // 세션 완료 실패해도 로딩 페이지로 이동 (사용자 경험 유지)
-        }
+        // 로그인 사용자: 바로 로딩 페이지로 이동 (API 호출은 Loading에서 처리)
+        navigatingToLoadingRef.current = true;
         navigatingCleanup();
         navigate("/loading", { state: { answers: nextAnswers } });
       }
@@ -185,6 +180,11 @@ export default function Quiz() {
         clearTimeout(advanceTimeoutRef.current);
       }
       advancingRef.current = false;
+
+      // /loading으로 이동 중이면 세션 유지
+      if (navigatingToLoadingRef.current) {
+        return;
+      }
 
       // 페이지를 떠날 때 (완료되지 않은 경우) 세션 초기화
       // 완료된 세션은 유지하고, 진행 중인 세션만 초기화
@@ -218,23 +218,8 @@ export default function Quiz() {
         return;
       }
 
-      // 로그인 사용자: 세션 완료 처리 후 로딩 페이지로 이동
-      try {
-        const session = getStoredSession();
-        if (session) {
-          await completeQuizSession(session.sessionId);
-          // 완료 성공 시 추천 생성 트리거
-          try {
-            await generateRecommendations(session.sessionId);
-          } catch (genError) {
-            // 추천 생성 실패는 사용자 흐름을 막지 않음
-            console.error("추천 생성 요청 실패:", genError);
-          }
-        }
-      } catch (error) {
-        console.error("세션 완료 실패:", error);
-        // 세션 완료 실패해도 로딩 페이지로 이동 (사용자 경험 유지)
-      }
+      // 로그인 사용자: 바로 로딩 페이지로 이동 (API 호출은 Loading에서 처리)
+      navigatingToLoadingRef.current = true;
       navigate("/loading", { state: { answers } });
     }
   };

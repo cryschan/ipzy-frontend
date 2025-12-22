@@ -52,8 +52,11 @@ export function GuestRoute({ children, redirectTo = "/" }: RouteGuardProps) {
 export function QuizRequiredRoute({ children }: RouteGuardProps) {
   const location = useLocation();
 
-  // state에 answers가 없으면 퀴즈로 리다이렉트
-  if (!location.state?.answers) {
+  // state에 answers가 있거나, sessionStorage에 pendingQuizAnswers가 있으면 허용
+  const hasAnswersInState = !!location.state?.answers;
+  const hasPendingAnswers = !!sessionStorage.getItem("pendingQuizAnswers");
+
+  if (!hasAnswersInState && !hasPendingAnswers) {
     return <Navigate to="/quiz" replace />;
   }
 

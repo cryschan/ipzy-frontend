@@ -41,8 +41,13 @@ api.interceptors.response.use(
         const currentPath = window.location?.pathname || "/";
         const isAdmin = currentPath.startsWith("/admin");
         const redirectPath = isAdmin ? "/admin/login" : "/";
+        // 로그인 관련 페이지에서는 알림/리다이렉트 하지 않음
+        const isAuthPage =
+          currentPath === "/login" ||
+          currentPath === "/auth/callback" ||
+          currentPath === "/admin/login";
         // 콜백 루프 방지 및 불필요한 재이동 방지
-        if (currentPath !== "/auth/callback" && currentPath !== redirectPath) {
+        if (!isAuthPage && currentPath !== redirectPath) {
           // 세션 만료 알럿 표시
           alert("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
 
