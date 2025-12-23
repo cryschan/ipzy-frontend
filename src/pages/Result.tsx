@@ -12,6 +12,7 @@ export default function Result() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [recommendation, setRecommendation] = useState<RecommendationGeneration | null>(null);
+  const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
 
   // 추천 결과 로드
   useEffect(() => {
@@ -57,6 +58,7 @@ export default function Result() {
       // 재생성 후 다시 로드
       const recs = await getRecommendationsBySession(session.sessionId);
       if (recs.length > 0) {
+        setFailedImages(new Set());
         setRecommendation(recs[0]);
       }
     } catch (error) {
@@ -196,16 +198,13 @@ export default function Result() {
                 >
                   {/* Product Image */}
                   <div className="w-20 h-20 bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden rounded">
-                    {item.imageUrl ? (
+                    {item.imageUrl && !failedImages.has(i) ? (
                       <img
                         src={item.imageUrl}
                         alt={item.name}
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = "none";
-                          target.parentElement!.innerHTML =
-                            '<span class="text-2xl text-gray-300">?</span>';
+                        onError={() => {
+                          setFailedImages((prev) => new Set(prev).add(i));
                         }}
                       />
                     ) : (
