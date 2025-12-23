@@ -1,9 +1,9 @@
 import axios from "axios";
 
 // 공용 axios 인스턴스
-// - baseURL: VITE_API_BASE_URL (기본값: http://localhost:8080)
+// - baseURL: VITE_API_BASE_URL (기본값: 빈 문자열 - Vercel rewrite 프록시 사용)
 // - withCredentials: 세션/쿠키 기반 인증을 위해 쿠키를 자동 포함
-const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL ?? "http://localhost:8080";
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL ?? "";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

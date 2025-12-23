@@ -23,13 +23,8 @@ export interface MeResponse {
  */
 export async function redirectToKakaoLogin(): Promise<void> {
   // OAuth 시작은 XHR이 아닌 "탑레벨 네비게이션"으로 처리해야 CORS 문제를 피할 수 있음
-  const base = import.meta.env?.VITE_API_BASE_URL as string | undefined;
-
-  if (!base) {
-    throw new Error(
-      "API base URL is not configured. Please set VITE_API_BASE_URL."
-    );
-  }
+  // Vercel rewrite 프록시를 사용하면 상대 경로로 호출 가능
+  const base = import.meta.env?.VITE_API_BASE_URL ?? "";
   const url = `${base.replace(/\/$/, "")}/api/auth/login/kakao`;
   window.location.assign(url);
 }
@@ -45,17 +40,18 @@ export async function fetchMe(): Promise<ApiResponse<MeResponse>> {
       return data as ApiResponse<MeResponse>;
     }
     return { success: true, data: data as MeResponse };
-  } catch (error: any) {
-    const statusCode = error?.response?.status ?? 0;
-    const data = error?.response?.data ?? {};
+  } catch (error: unknown) {
+    const err = error as {
+      response?: { status?: number; data?: { error?: ApiError } };
+      message?: string;
+    };
+    const statusCode = err?.response?.status ?? 0;
+    const data = err?.response?.data ?? {};
     return {
       success: false,
       error: {
         code: data?.error?.code ?? "HTTP_" + statusCode,
-        message:
-          data?.error?.message ??
-          error?.message ??
-          "Failed to fetch current user",
+        message: data?.error?.message ?? err?.message ?? "Failed to fetch current user",
       },
     };
   }
@@ -72,14 +68,18 @@ export async function logout(): Promise<ApiResponse<null>> {
       return data as ApiResponse<null>;
     }
     return { success: true, data: null };
-  } catch (error: any) {
-    const statusCode = error?.response?.status ?? 0;
-    const data = error?.response?.data ?? {};
+  } catch (error: unknown) {
+    const err = error as {
+      response?: { status?: number; data?: { error?: ApiError } };
+      message?: string;
+    };
+    const statusCode = err?.response?.status ?? 0;
+    const data = err?.response?.data ?? {};
     return {
       success: false,
       error: {
         code: data?.error?.code ?? "HTTP_" + statusCode,
-        message: data?.error?.message ?? error?.message ?? "Logout failed",
+        message: data?.error?.message ?? err?.message ?? "Logout failed",
       },
     };
   }
