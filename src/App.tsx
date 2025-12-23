@@ -58,10 +58,12 @@ function App() {
                 <Route path="/result" element={<Result />} />
               </Route>
 
+              {/* OAuth 콜백 - GuestRoute 밖에서 처리 (postLoginRedirect 우선) */}
+              <Route path="/auth/callback" element={<AuthCallback />} />
+
               {/* 비로그인 사용자만 접근 가능 */}
               <Route element={<GuestRoute />}>
                 <Route path="/login" element={<Login />} />
-                <Route path="/auth/callback" element={<AuthCallback />} />
               </Route>
 
               {/* 로그인 필요 */}

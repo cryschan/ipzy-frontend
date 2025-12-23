@@ -112,6 +112,38 @@ const mockSavedOutfits: SavedOutfit[] = [
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [savedOutfits, setSavedOutfits] = useState<SavedOutfit[]>(mockSavedOutfits);
+  const [, setIsAuthLoading] = useState(true);
+
+  // 페이지 로드 시 서버에서 로그인 상태 복원
+  useEffect(() => {
+    const restoreAuth = async () => {
+      try {
+        const res = await fetchMe();
+        if (res.success && res.data) {
+          const me = res.data;
+          setUser({
+            id: String(me.userId),
+            email: me.email,
+            name: me.name,
+            role: "user",
+            subscription: {
+              plan: "free",
+              startDate: null,
+              endDate: null,
+              isActive: true,
+            },
+            createdAt: new Date().toISOString().split("T")[0],
+          });
+        }
+      } catch {
+        // 로그인 안 된 상태 - 무시
+      } finally {
+        setIsAuthLoading(false);
+      }
+    };
+
+    restoreAuth();
+  }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     // 모의 로그인 (실제로는 API 호출)

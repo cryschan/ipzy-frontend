@@ -236,6 +236,7 @@ export interface RecommendationItem {
   name: string;
   brand: string;
   price: number;
+  imageUrl: string | null;
   linkUrl: string;
   position: RecommendationItemPosition;
 }
@@ -284,6 +285,36 @@ export const generateRecommendations = async (
     if (isAxiosError(error)) {
       const status = error.response.status;
       throw new Error(`HTTP ${status}: 추천 생성 요청에 실패했습니다`);
+    }
+    throw error;
+  }
+};
+
+/**
+ * 세션별 추천 결과를 조회합니다.
+ * @param sessionId 세션 ID
+ * @returns 추천 결과 목록
+ */
+export const getRecommendationsBySession = async (
+  sessionId: number
+): Promise<RecommendationGeneration[]> => {
+  try {
+    const { data } = await api.get<ApiResponse<RecommendationGeneration[]>>(
+      `/api/recommendations/sessions/${sessionId}`
+    );
+    if (data.error || !data.success) {
+      const error = data.error;
+      if (error) throw new Error(`${error.code}: ${error.message}`);
+      throw new Error("추천 결과를 조회하는데 실패했습니다");
+    }
+    if (!data.data) {
+      throw new Error("추천 결과 데이터가 없습니다");
+    }
+    return data.data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      const status = error.response.status;
+      throw new Error(`HTTP ${status}: 추천 결과 조회에 실패했습니다`);
     }
     throw error;
   }

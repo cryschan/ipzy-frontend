@@ -1,62 +1,70 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, HomeIcon, Loader2, RotateCcw } from "lucide-react";
+import { getRecommendationsBySession, type RecommendationGeneration } from "../api/quiz";
 import { getStoredSession, regenerateRecommendations } from "../utils/quizApi";
 
 import { QUIZ_PATH } from "@/constants/navigation";
 
-// 모의 데이터
-const mockResult = {
-  top: {
-    name: "오버핏 옥스포드 셔츠",
-    brand: "무신사 스탠다드",
-    price: 59000,
-    image: null,
-  },
-  bottom: {
-    name: "와이드 슬랙스 팬츠",
-    brand: "커버낫",
-    price: 79000,
-    image: null,
-  },
-  shoes: {
-    name: "레더 코트 스니커즈",
-    brand: "컨버스",
-    price: 51000,
-    image: null,
-  },
-  total: 189000,
-  reason:
-    "데이트에 어울리는 깔끔한 스타일로, 체형과 예산을 모두 고려했습니다. 오버핏 셔츠로 편안하면서도 세련된 느낌을 연출하고, 와이드 슬랙스로 다리 라인을 보완했어요.",
-};
-
 export default function Result() {
   const navigate = useNavigate();
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [recommendation, setRecommendation] = useState<RecommendationGeneration | null>(null);
+  const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
+
+  // 추천 결과 로드
+  useEffect(() => {
+    const loadRecommendation = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const session = getStoredSession();
+        if (!session) {
+          setError("세션 정보가 없습니다. 퀴즈를 다시 진행해주세요.");
+          return;
+        }
+
+        const recs = await getRecommendationsBySession(session.sessionId);
+        if (recs.length > 0) {
+          setRecommendation(recs[0]);
+        } else {
+          setError("추천 결과가 없습니다.");
+        }
+      } catch (err) {
+        console.error("추천 결과 로드 실패:", err);
+        setError(err instanceof Error ? err.message : "추천 결과를 불러오는데 실패했습니다.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadRecommendation();
+  }, []);
 
   const navigateToQuiz = async () => {
     try {
       const session = getStoredSession();
       if (!session) {
-        // 세션이 없으면 퀴즈로 이동하여 새로 시작
         navigate(QUIZ_PATH);
         return;
       }
 
-      // 로딩 시작
       setIsRegenerating(true);
-
-      // 추천 재생성 요청
       await regenerateRecommendations(session.sessionId);
 
-      // 성공 시 로딩 페이지로 이동 (새로운 추천 결과 확인)
-      navigate("/loading");
+      // 재생성 후 다시 로드
+      const recs = await getRecommendationsBySession(session.sessionId);
+      if (recs.length > 0) {
+        setFailedImages(new Set());
+        setRecommendation(recs[0]);
+      }
     } catch (error) {
       console.error("추천 재생성 실패:", error);
-      // 사용자에게 에러 알림
       alert("추천을 다시 생성하는 중 오류가 발생했습니다. 다시 시도해주세요.");
     } finally {
-      // 로딩 종료 (navigate가 성공하면 이 컴포넌트가 언마운트되지만, 에러 시에는 필요)
       setIsRegenerating(false);
     }
   };
@@ -64,6 +72,67 @@ export default function Result() {
   const navigateToHome = () => {
     navigate("/");
   };
+
+  // 카테고리별 아이템 매핑
+  const getCategoryLabel = (category: string) => {
+    const labels: Record<string, string> = {
+      TOP: "Top",
+      BOTTOM: "Bottom",
+      OUTER: "Outer",
+      SHOES: "Shoes",
+      ACCESSORY: "Accessory",
+    };
+    return labels[category] || category;
+  };
+
+  // 로딩 중
+  if (isLoading) {
+    return (
+      <main className="min-h-screen bg-white text-[#1a1a1a] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-[#FB5010] mx-auto mb-4" />
+          <p className="text-gray-600">추천 결과를 불러오는 중...</p>
+        </div>
+      </main>
+    );
+  }
+
+  // 에러 발생
+  if (error) {
+    return (
+      <main className="min-h-screen bg-white text-[#1a1a1a] flex items-center justify-center">
+        <div className="text-center px-6">
+          <p className="text-red-500 mb-4">{error}</p>
+          <button
+            onClick={() => navigate(QUIZ_PATH)}
+            className="px-6 py-3 bg-[#FB5010] text-white font-bold rounded-full hover:bg-[#E04600] transition-colors"
+          >
+            퀴즈 다시 시작
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  // 추천 결과가 없음
+  if (!recommendation || !recommendation.result) {
+    return (
+      <main className="min-h-screen bg-white text-[#1a1a1a] flex items-center justify-center">
+        <div className="text-center px-6">
+          <p className="text-gray-600 mb-4">추천 결과가 없습니다.</p>
+          <button
+            onClick={() => navigate(QUIZ_PATH)}
+            className="px-6 py-3 bg-[#FB5010] text-white font-bold rounded-full hover:bg-[#E04600] transition-colors"
+          >
+            퀴즈 다시 시작
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  const { result, reason } = recommendation;
+  const { compositeImageUrl, totalPrice, items } = result;
 
   return (
     <main className="min-h-screen bg-white text-[#1a1a1a]">
@@ -92,18 +161,26 @@ export default function Result() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Left: Outfit Visual */}
           <div className="relative">
-            <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 relative">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <span className="text-[120px] md:text-[150px] font-black text-gray-300">?</span>
-                  <p className="text-gray-400 text-sm mt-4">이미지 준비 중</p>
+            <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+              {compositeImageUrl ? (
+                <img
+                  src={compositeImageUrl}
+                  alt="추천 코디"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <span className="text-[120px] md:text-[150px] font-black text-gray-300">?</span>
+                    <p className="text-gray-400 text-sm mt-4">이미지 준비 중</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             {/* Price Tag */}
             <div className="absolute bottom-6 right-6 bg-[#FB5010] text-white px-6 py-4 shadow-lg">
               <p className="text-xs uppercase tracking-widest opacity-80">Total</p>
-              <p className="text-2xl font-black">₩{mockResult.total.toLocaleString()}</p>
+              <p className="text-2xl font-black">₩{totalPrice.toLocaleString()}</p>
             </div>
           </div>
 
@@ -111,31 +188,44 @@ export default function Result() {
           <div className="flex flex-col">
             {/* Products */}
             <div className="space-y-6 flex-1">
-              {[
-                { label: "Top", item: mockResult.top },
-                { label: "Bottom", item: mockResult.bottom },
-                { label: "Shoes", item: mockResult.shoes },
-              ].map((product, i) => (
-                <div key={i} className="flex gap-4 border-b border-gray-100 pb-6">
-                  {/* Product Image Placeholder */}
-                  <div className="w-20 h-20 bg-gray-100 flex items-center justify-center flex-shrink-0">
-                    <span className="text-2xl text-gray-300">?</span>
+              {items.map((item, i) => (
+                <a
+                  key={i}
+                  href={item.linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex gap-4 border-b border-gray-100 pb-6 hover:bg-gray-50 transition-colors -mx-2 px-2 rounded-lg"
+                >
+                  {/* Product Image */}
+                  <div className="w-20 h-20 bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden rounded">
+                    {item.imageUrl && !failedImages.has(i) ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        onError={() => {
+                          setFailedImages((prev) => new Set(prev).add(i));
+                        }}
+                      />
+                    ) : (
+                      <span className="text-2xl text-gray-300">?</span>
+                    )}
                   </div>
 
                   {/* Product Info */}
                   <div className="flex-1">
                     <p className="text-[#FB5010] text-xs font-bold uppercase tracking-widest mb-1">
-                      {product.label}
+                      {getCategoryLabel(item.category)}
                     </p>
-                    <p className="font-bold text-lg">{product.item.name}</p>
-                    <p className="text-sm text-gray-500">{product.item.brand}</p>
+                    <p className="font-bold text-lg">{item.name}</p>
+                    <p className="text-sm text-gray-500">{item.brand}</p>
                   </div>
 
                   {/* Price */}
                   <div className="text-right">
-                    <p className="font-bold">₩{product.item.price.toLocaleString()}</p>
+                    <p className="font-bold">₩{item.price.toLocaleString()}</p>
                   </div>
-                </div>
+                </a>
               ))}
             </div>
 
@@ -144,7 +234,7 @@ export default function Result() {
               <p className="text-[#FB5010] text-xs font-bold uppercase tracking-widest mb-3">
                 AI's Comment
               </p>
-              <p className="text-sm leading-relaxed text-gray-300">"{mockResult.reason}"</p>
+              <p className="text-sm leading-relaxed text-gray-300">"{reason}"</p>
             </div>
 
             {/* CTAs */}
